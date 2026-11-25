@@ -3,7 +3,7 @@ from pathlib import Path
 import shutil
 import sys
 
-dest = Path('dist/BlackoutTracker/licenses')
+dest = Path(sys.argv[1]) if len(sys.argv) > 1 else Path('dist/BlackoutTracker/licenses')
 dest.mkdir(parents=True, exist_ok=True)
 shutil.copytree('licenses', dest, dirs_exist_ok=True)
 for package in ('PySide6_Essentials', 'shiboken6', 'tzdata', 'pyinstaller'):

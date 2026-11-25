@@ -1,7 +1,9 @@
 [Setup]
 AppId=BlackoutTracker
 AppName=BlackoutTracker
-AppVersion=0.2.0
+AppVersion=0.5.0
+AppPublisherURL=https://github.com/akoval29/BlackoutTracker
+AppUpdatesURL=https://github.com/akoval29/BlackoutTracker
 DefaultDirName={localappdata}\Programs\BlackoutTracker
 DefaultGroupName=BlackoutTracker
 PrivilegesRequired=lowest
@@ -9,7 +11,7 @@ ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 MinVersion=10.0.17763
 OutputDir=dist
-OutputBaseFilename=BlackoutTracker-0.2-Setup
+OutputBaseFilename=BlackoutTracker-0.5-Setup
 Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern
@@ -37,7 +39,7 @@ Filename: "{app}\BlackoutTracker.exe"; Description: "Запустити Blackout
 var
   QueuePage: TInputOptionWizardPage;
   ModePage: TInputOptionWizardPage;
-  SourcePage: TOutputMsgWizardPage;
+  ProjectPage: TOutputMsgWizardPage;
 
 function IsPortable: Boolean;
 begin
@@ -48,7 +50,13 @@ procedure InitializeWizard;
 var
   I, J: Integer;
 begin
-  ModePage := CreateInputOptionPage(wpWelcome,
+  ProjectPage := CreateOutputMsgPage(wpWelcome, 'Про BlackoutTracker',
+    'Проєкт з відкритим вихідним кодом',
+    'BlackoutTracker — це проєкт з відкритим вихідним кодом.' + #13#10 + #13#10 +
+    'Останню версію програми можна завантажити на сторінці проєкту:' + #13#10 +
+    'https://github.com/akoval29/BlackoutTracker' + #13#10 + #13#10 +
+    'Там також доступний вихідний код проєкту.');
+  ModePage := CreateInputOptionPage(ProjectPage.ID,
     'Як використовувати BlackoutTracker?', 'Оберіть звичайне встановлення або portable.',
     'Звичайне: ярлики та видалення через Windows, налаштування у профілі користувача.' + #13#10 + #13#10 +
     'Portable: програма, налаштування й кеш в одній папці. Її можна переносити або зберігати на флешці. Без ярликів і запису у списку програм Windows.' + #13#10 + #13#10 +
@@ -56,15 +64,10 @@ begin
   ModePage.Add('Звичайне встановлення');
   ModePage.Add('Portable — переносна версія');
   ModePage.SelectedValueIndex := 0;
-  SourcePage := CreateOutputMsgPage(ModePage.ID, 'Звідки береться графік?',
-    'Відкриті дані GPV-UA — https://gpv-ua.com/',
-    'BlackoutTracker отримує графіки з відкритих даних GPV-UA: https://gpv-ua.com/.' + #13#10 + #13#10 +
-    'Якщо основне джерело недоступне, використовується публічна копія на GitHub (Baskerville42/outage-data-ua).' + #13#10 + #13#10 +
-    'Програма не є офіційним застосунком ДТЕК. Графіки можуть змінюватися або надходити із затримкою. Запланований стан не підтверджує фактичну наявність електроенергії.');
   QueuePage := CreateInputOptionPage(wpSelectDir,
     'Оберіть чергу відключень',
     'Київська область — ДТЕК Київські регіональні електромережі',
-    'Чергу можна змінити пізніше у застосунку. Типово обрано 6.1.', True, False);
+    'Для нового встановлення типово обрано 6.1. При оновленні наявні налаштування зберігаються; змінити їх можна у застосунку.', True, False);
   for I := 1 to 6 do
     for J := 1 to 2 do
       QueuePage.Add(IntToStr(I) + '.' + IntToStr(J));
@@ -110,6 +113,7 @@ begin
     else
       SettingsPath := ExpandConstant('{localappdata}\BlackoutTracker');
     ForceDirectories(SettingsPath);
+    if not FileExists(SettingsPath + '\settings.json') then
     if not SaveStringToFile(SettingsPath + '\settings.json', '{"group":"' + Group + '"}', False) then
       MsgBox('Не вдалося зберегти чергу. Оберіть її під час першого запуску.', mbInformation, MB_OK);
   end;

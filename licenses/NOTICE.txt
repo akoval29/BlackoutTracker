@@ -11,5 +11,3 @@ Qt third-party notices: https://doc.qt.io/qt-6/licenses-used-in-qt.html
 Python: https://www.python.org/downloads/source/
 
 Other dependency licenses are in the subdirectories of this folder.
-Schedule data is obtained from GPV-UA and Baskerville42/outage-data-ua;
-these are third-party services, not affiliated with BlackoutTracker.

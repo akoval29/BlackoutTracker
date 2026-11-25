@@ -4,11 +4,13 @@ import sys
 from datetime import datetime, timedelta
 from pathlib import Path
 
-from PySide6.QtCore import Qt, QTimer, QThread, Signal, QLockFile
+from PySide6.QtCore import Qt, QTimer, QThread, Signal, QLockFile, QRect, QVariantAnimation, QEasingCurve
 from PySide6.QtGui import QColor, QIcon, QPainter, QPixmap, QFont
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QLabel, QPushButton, QComboBox, QDialog, QDialogButtonBox, QSystemTrayIcon, QMenu,
-    QFrame, QMessageBox, QScrollArea)
+    QFrame, QMessageBox, QScrollArea, QCheckBox, QSpinBox)
+from preferences import load_settings
+from alerts import AlertState
 from core import GROUPS, KYIV, fetch_schedule, state_at, fresh, timestamp, clock_text
 
 STYLE = '''
@@ -69,7 +71,7 @@ class Setup(QDialog):
         note = QLabel('Перша версія підтримує Київську область.\nЧергу можна змінити будь-коли в налаштуваннях.')
         note.setObjectName('muted')
         layout.addWidget(note)
-        source_note = QLabel('Дані з відкритого джерела GPV-UA: https://gpv-ua.com/\nГрафік може змінюватися й не підтверджує фактичну наявність світла.')
+        source_note = QLabel('Графік може змінюватися й не підтверджує фактичну наявність світла.')
         source_note.setWordWrap(True)
         source_note.setObjectName('muted')
         layout.addWidget(source_note)
@@ -84,6 +86,127 @@ class Setup(QDialog):
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
         layout.addWidget(buttons)
+
+
+class SettingsPanel(QWidget):
+    saved = Signal(dict)
+    cancelled = Signal()
+
+    def __init__(self, preferences, parent=None):
+        super().__init__(parent)
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(18, 18, 18, 18)
+        layout.setSpacing(12)
+        title = QLabel('Налаштування')
+        title.setStyleSheet('font-size: 23px; font-weight: 600;')
+        layout.addWidget(title)
+        layout.addWidget(QLabel('Київська область · Черга'))
+        self.combo = QComboBox()
+        self.combo.addItems(GROUPS)
+        layout.addWidget(self.combo)
+        self.always = QCheckBox('Постійно показувати оверлей')
+        layout.addWidget(self.always)
+        layout.addWidget(QLabel('Оновлювати API кожні:'))
+        self.interval = QSpinBox()
+        self.interval.setRange(1, 30)
+        self.interval.setSuffix(' хв')
+        self.interval.setAccessibleName('Частота оновлення API, хвилини')
+        layout.addWidget(self.interval)
+        self.sound = QCheckBox('Звук за 5 хвилин до відключення')
+        layout.addWidget(self.sound)
+        self.sound_choice = QComboBox()
+        for name, key in [('Три короткі тони', 'warning'), ('Дзвінок', 'bell'), ('Сирена', 'siren')]:
+            self.sound_choice.addItem(name, key)
+        self.sound_choice.setAccessibleName('Звук попередження')
+        layout.addWidget(self.sound_choice)
+        preview = QPushButton('Прослухати')
+        preview.clicked.connect(lambda: play_warning(self.sound_choice.currentData()))
+        layout.addWidget(preview)
+        hint = QLabel('Оверлей автоматично з’являється за 5 хвилин до відключення. Клік приховує його до наступної події. Відлік оновлюється щосекунди.')
+        hint.setWordWrap(True)
+        hint.setObjectName('muted')
+        layout.addWidget(hint)
+        self.error = QLabel()
+        self.error.setWordWrap(True)
+        self.error.setStyleSheet('color: #f6ad55;')
+        layout.addWidget(self.error)
+        layout.addStretch()
+        row = QHBoxLayout()
+        save = QPushButton('Зберегти')
+        save.clicked.connect(lambda: self.saved.emit(self.values()))
+        cancel = QPushButton('Скасувати')
+        cancel.clicked.connect(self.cancelled.emit)
+        row.addWidget(save)
+        row.addWidget(cancel)
+        layout.addLayout(row)
+        self.load(preferences)
+
+    def load(self, preferences):
+        self.combo.setCurrentText(preferences['group'])
+        self.always.setChecked(preferences['always_overlay'])
+        self.interval.setValue(preferences['refresh_minutes'])
+        self.sound.setChecked(preferences['sound_enabled'])
+        self.sound_choice.setCurrentIndex(self.sound_choice.findData(preferences['sound_name']))
+        self.error.clear()
+
+    def values(self):
+        return {'group': self.combo.currentText(), 'always_overlay': self.always.isChecked(),
+                'refresh_minutes': self.interval.value(), 'sound_enabled': self.sound.isChecked(),
+                'sound_name': self.sound_choice.currentData()}
+
+
+def play_warning(name='warning'):
+    try:
+        import winsound
+        name = name if name in ('warning', 'bell', 'siren') else 'warning'
+        sound = Path(__file__).resolve().parent / 'assets' / (name + '.wav')
+        winsound.PlaySound(str(sound), winsound.SND_FILENAME | winsound.SND_ASYNC | winsound.SND_NODEFAULT)
+    except (ImportError, RuntimeError):
+        QApplication.beep()
+
+
+class CountdownOverlay(QWidget):
+    dismissed = Signal()
+
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle('BlackoutTracker · Оверлей')
+        self.setWindowFlags(Qt.WindowType.Tool | Qt.WindowType.FramelessWindowHint |
+                            Qt.WindowType.WindowStaysOnTopHint | Qt.WindowType.WindowDoesNotAcceptFocus)
+        self.setAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating)
+        self.setWindowOpacity(0.94)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.setFixedSize(340, 180)
+        self.setStyleSheet('CountdownOverlay { background: #182536; border: 1px solid #52657e; }')
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(18, 14, 18, 14)
+        self.label = QLabel()
+        self.label.setWordWrap(True)
+        self.timer = QLabel()
+        self.timer.setStyleSheet('font-size: 36px; font-weight: 650; color: #f6ad55;')
+        self.hint = QLabel('Натисніть, щоб приховати')
+        self.hint.setObjectName('muted')
+        for widget in (self.label, self.timer, self.hint):
+            widget.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
+            layout.addWidget(widget)
+
+    def present(self, label, countdown):
+        self.label.setText(label)
+        self.timer.setText(countdown)
+        screen = QApplication.primaryScreen()
+        if screen:
+            area = screen.availableGeometry()
+            self.move(area.right() - self.width() - 15, area.top() + 16)
+        if not self.isVisible():
+            self.show()
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton:
+            self.hide()
+            self.dismissed.emit()
+            event.accept()
+        else:
+            super().mousePressEvent(event)
 
 
 class Fetcher(QThread):
@@ -105,6 +228,10 @@ class Window(QMainWindow):
     def __init__(self, folder, group):
         super().__init__()
         self.folder, self.group = folder, group
+        self.preferences = load_settings(folder / 'settings.json', group)
+        self.alerts = AlertState()
+        self.overlay = CountdownOverlay()
+        self.overlay.dismissed.connect(self.alerts.dismiss)
         self.schedule = None
         self.worker = None
         self.offline = False
@@ -112,9 +239,36 @@ class Window(QMainWindow):
         self.last_color = None
         self.setWindowTitle('BlackoutTracker')
         self.expanded = False
+        self.settings_open = False
+        self.drawer_width = 360
+        self.panel_height = 360.0
+        self.drawer_reveal = 0.0
+        self.motion = QVariantAnimation(self)
+        self.motion.setDuration(260)
+        self.motion.valueChanged.connect(self.animate_panels)
+        self.motion.setEasingCurve(QEasingCurve.Type.InOutCubic)
         self.setWindowFlags(Qt.WindowType.Tool | Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint)
-        root = QWidget()
-        self.setCentralWidget(root)
+        self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+        self.container = QWidget()
+        self.container.setObjectName('shell')
+        self.container.setStyleSheet('#shell { background: transparent; }')
+        self.setCentralWidget(self.container)
+        self.main_panel = root = QWidget(self.container)
+        root.setObjectName('mainPanel')
+        root.setStyleSheet('#mainPanel { background: #101722; }')
+        self.drawer_clip = QWidget(self.container)
+        self.drawer_clip.setObjectName('drawerClip')
+        self.drawer_clip.setStyleSheet('#drawerClip { background: transparent; }')
+        self.drawer = QScrollArea(self.drawer_clip)
+        self.drawer.setWidgetResizable(True)
+        self.drawer.setFrameShape(QFrame.Shape.NoFrame)
+        self.settings_panel = SettingsPanel(self.preferences)
+        self.settings_panel.setObjectName('settingsPanel')
+        self.settings_panel.setStyleSheet('#settingsPanel { background: #182536; }')
+        self.drawer.setWidget(self.settings_panel)
+        self.settings_panel.saved.connect(self.apply_settings)
+        self.settings_panel.cancelled.connect(self.close_settings)
+        self.drawer_clip.hide()
         layout = QVBoxLayout(root)
         layout.setContentsMargins(20, 18, 20, 18)
         layout.setSpacing(10)
@@ -123,6 +277,11 @@ class Window(QMainWindow):
         title.setStyleSheet('font-size: 22px; font-weight: 700;')
         header.addWidget(title)
         header.addStretch()
+        gear = QPushButton('…')
+        gear.setAccessibleName('Налаштування')
+        gear.setFixedWidth(40)
+        gear.clicked.connect(self.configure)
+        header.addWidget(gear)
         hide = QPushButton('×')
         hide.setAccessibleName('Сховати у трей')
         hide.setToolTip('Сховати у трей')
@@ -170,14 +329,11 @@ class Window(QMainWindow):
         self.source.setWordWrap(True)
         self.source.setObjectName('muted')
         details_layout.addWidget(self.source)
-        attribution = QLabel('Відкриті дані: <a href="https://gpv-ua.com/" style="color:#5ee0af">GPV-UA</a> · резерв: GitHub')
-        attribution.setOpenExternalLinks(True)
-        details_layout.addWidget(attribution)
         row = QHBoxLayout()
         self.refresh_button = QPushButton('Оновити графік')
         self.refresh_button.clicked.connect(self.refresh)
         row.addWidget(self.refresh_button)
-        self.settings = QPushButton('Обрати чергу')
+        self.settings = QPushButton('Налаштування')
         self.settings.clicked.connect(self.configure)
         row.addWidget(self.settings)
         details_layout.addLayout(row)
@@ -195,7 +351,7 @@ class Window(QMainWindow):
         menu = QMenu(self)
         menu.addAction('Відкрити графік', self.reveal)
         menu.addAction('Оновити', self.refresh)
-        menu.addAction('Обрати чергу', self.configure)
+        menu.addAction('Налаштування', self.configure)
         menu.addSeparator()
         menu.addAction('Вийти', self.quit_app)
         self.tray.setContextMenu(menu)
@@ -207,7 +363,7 @@ class Window(QMainWindow):
         self.tick_timer.start(1000)
         self.poll_timer = QTimer(self)
         self.poll_timer.timeout.connect(self.refresh)
-        self.poll_timer.start(120_000)
+        self.poll_timer.start(self.preferences['refresh_minutes'] * 60_000)
         self.tick()
         self.dock_screen = QApplication.primaryScreen()
         self.dock_screen.availableGeometryChanged.connect(self.anchor)
@@ -221,21 +377,62 @@ class Window(QMainWindow):
             screen.availableGeometryChanged.connect(self.anchor)
             self.anchor()
 
-    def anchor(self, *_):
+    def anchor(self, *_, animate=False):
         screen = self.dock_screen or QApplication.primaryScreen()
         if not screen:
             return
         area = screen.availableGeometry()
-        width = min(420, area.width() - 24)
-        height = min(680 if self.expanded else 360, area.height() - 24)
-        self.setFixedSize(width, height)
-        self.move(area.right() - width - 11, area.bottom() - height - 11)
+        base = min(420, area.width() - 24)
+        self.drawer_width = min(360, max(0, area.width() - base - 24))
+        # Keep the native translucent canvas fixed: only child widgets animate.
+        # This avoids Windows resize/compositor jitter and an end-of-motion snap.
+        width = base + self.drawer_width
+        height = min(680, area.height() - 24)
+        self.motion.stop()
+        self.setGeometry(QRect(area.right() - width - 11,
+                               area.bottom() - height - 11, width, height))
+        self.main_start_height = self.panel_height
+        self.main_end_height = min(680 if self.expanded else 360, height)
+        self.drawer_start = self.drawer_reveal
+        self.drawer_end = self.drawer_width if self.settings_open else 0
+        if animate and self.isVisible():
+            self.motion.setStartValue(0.0)
+            self.motion.setEndValue(1.0)
+            self.motion.start()
+        else:
+            self.animate_panels(1.0)
+
+    def animate_panels(self, progress):
+        self.panel_height = self.main_start_height + (self.main_end_height - self.main_start_height) * progress
+        self.drawer_reveal = self.drawer_start + (self.drawer_end - self.drawer_start) * progress
+        self.arrange_panels()
+
+    def arrange_panels(self):
+        if not hasattr(self, 'main_panel'):
+            return
+        base = min(420, self.width())
+        main_height = min(self.height(), round(self.panel_height))
+        edge = self.width() - base
+        self.main_panel.setGeometry(edge, self.height() - main_height, base, main_height)
+        visible = min(self.drawer_width, max(0, round(self.drawer_reveal)))
+        drawer_height = min(620, self.height())
+        self.drawer_clip.setGeometry(edge - visible, self.height() - drawer_height,
+                                     visible, drawer_height)
+        # Reveal the left edge first, as if the drawer were moving from under
+        # the main panel. Its layout remains full-sized throughout the motion.
+        self.drawer.setGeometry(0, 0, self.drawer_width, drawer_height)
+        self.drawer_clip.setVisible(visible > 0)
+        self.main_panel.raise_()
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self.arrange_panels()
 
     def toggle_expanded(self):
         self.expanded = not self.expanded
         self.details.setVisible(self.expanded)
         self.expand_button.setText('Згорнути подробиці ↓' if self.expanded else 'Розгорнути · графік і подробиці ↑')
-        self.anchor()
+        self.anchor(animate=True)
 
     def showEvent(self, event):
         super().showEvent(event)
@@ -245,7 +442,7 @@ class Window(QMainWindow):
         self.schedule = None
         try:
             cached = json.loads((self.folder / f'cache-{self.group}.json').read_text(encoding='utf-8'))
-            if cached['group'] == self.group:
+            if cached['group'] == self.group and cached.get('provider') == 'github':
                 state_at(cached, datetime.now(KYIV))
                 fresh(cached, datetime.now(KYIV))
                 self.schedule = cached
@@ -258,7 +455,6 @@ class Window(QMainWindow):
             return
         self.refresh_button.setEnabled(False)
         self.refresh_button.setText('Оновлюємо…')
-        self.settings.setEnabled(False)
         self.worker = Fetcher(self.group)
         self.worker.ready.connect(self.received)
         self.worker.failed.connect(self.failed)
@@ -266,8 +462,11 @@ class Window(QMainWindow):
         self.worker.start()
 
     def received(self, schedule):
+        if schedule['group'] != self.group:
+            return
         self.schedule, self.offline = schedule, False
         self.warning.setText(schedule.get('warning', ''))
+        self.warning.setToolTip('')
         try:
             save_json(self.folder / f'cache-{self.group}.json', schedule)
         except OSError:
@@ -275,19 +474,23 @@ class Window(QMainWindow):
         self.tick()
 
     def failed(self, message):
+        if self.worker is not None and self.worker.group != self.group:
+            return
         self.offline = True
-        self.warning.setText('Немає оновлення. Показано збережений графік.' if self.schedule else 'Джерела недоступні. Повторимо через 2 хвилини.')
+        self.warning.setText('Немає оновлення. Показано збережений графік.' if self.schedule else f"Джерела недоступні. Повторимо через {self.preferences['refresh_minutes']} хв.")
         self.warning.setToolTip(message)
         self.tick()
 
     def finished(self):
+        old_group = self.worker.group
         self.worker.deleteLater()
         self.worker = None
-        self.settings.setEnabled(True)
         self.refresh_button.setEnabled(True)
         self.refresh_button.setText('Оновити графік')
         if self.quitting:
             QApplication.instance().quit()
+        elif old_group != self.group:
+            self.refresh()
 
     def tick(self):
         now = datetime.now(KYIV)
@@ -330,27 +533,55 @@ class Window(QMainWindow):
             checked = timestamp(self.schedule['checked']).astimezone(KYIV)
             updated = self.schedule.get('updated')
             detail = f' · графік від {timestamp(updated).astimezone(KYIV):%d.%m %H:%M}' if updated else ''
-            self.source.setText(f"{self.schedule['source']} · перевірено {checked:%d.%m %H:%M}{detail}")
+            self.source.setText(f"Перевірено {checked:%d.%m %H:%M}{detail}")
         else:
-            self.source.setText('GPV-UA → GitHub (резерв) · перевірка кожні 2 хвилини')
+            self.source.setText(f"Перевірка графіка кожні {self.preferences['refresh_minutes']} хв")
+        if not self.quitting:
+            visible, sound = self.alerts.evaluate(self.schedule, now, self.group, self.preferences['always_overlay'])
+            if visible:
+                self.overlay.present(label, self.countdown.text())
+            else:
+                self.overlay.hide()
+            if sound and self.preferences['sound_enabled']:
+                play_warning(self.preferences['sound_name'])
 
     def configure(self):
-        if self.worker is not None:
+        if self.settings_open:
+            self.close_settings()
             return
-        dialog = Setup(self.group, self)
-        if dialog.exec() == QDialog.DialogCode.Accepted:
-            group = dialog.combo.currentText()
-            try:
-                save_json(self.folder / 'settings.json', {'group': group})
-            except OSError as exc:
-                QMessageBox.warning(self, 'Не вдалося зберегти', str(exc))
-                return
-            self.group = group
+        self.settings_panel.load(self.preferences)
+        if not self.isVisible():
+            self.reveal()
+        self.settings_open = True
+        self.anchor(animate=True)
+
+    def close_settings(self):
+        self.settings_open = False
+        self.anchor(animate=True)
+
+    def apply_settings(self, updated):
+        try:
+            save_json(self.folder / 'settings.json', updated)
+        except OSError as exc:
+            self.settings_panel.error.setText(f'Не вдалося зберегти: {exc}')
+            return
+        group_changed = updated['group'] != self.group
+        if updated['always_overlay'] != self.preferences['always_overlay']:
+            self.alerts.dismissed = None
+        self.preferences = updated
+        self.group = updated['group']
+        self.poll_timer.start(updated['refresh_minutes'] * 60_000)
+        if group_changed:
+            self.alerts = AlertState()
+            self.overlay.dismissed.disconnect()
+            self.overlay.dismissed.connect(self.alerts.dismiss)
             self.offline = False
             self.warning.clear()
             self.load_cache()
-            self.tick()
+        self.tick()
+        if group_changed:
             self.refresh()
+        self.close_settings()
 
     def reveal(self):
         self.showNormal()
@@ -376,6 +607,7 @@ class Window(QMainWindow):
 
     def quit_app(self):
         self.quitting = True
+        self.overlay.hide()
         self.poll_timer.stop()
         self.hide()
         self.tray.hide()
@@ -397,12 +629,12 @@ def main():
         report.parent.mkdir(parents=True, exist_ok=True)
         Window.refresh = lambda self: None
         window = Window(report.parent, '6.1')
-        setup = Setup('6.1')
+        setup = window.settings_panel
         app.processEvents()
         window.grab().save(str(report.with_suffix('.png')))
         save_json(report, {'ok': True, 'frozen': bool(getattr(sys, 'frozen', False)),
                            'timezone': str(KYIV), 'queue': setup.combo.currentText(),
-                           'qt_widgets': True, 'tray_available': QSystemTrayIcon.isSystemTrayAvailable()})
+                           'qt_widgets': True, 'sound_assets': all((Path(__file__).parent / 'assets' / (name + '.wav')).exists() for name in ('warning', 'bell', 'siren')), 'tray_available': QSystemTrayIcon.isSystemTrayAvailable()})
         window.tray.hide()
         return 0
     folder = data_directory()

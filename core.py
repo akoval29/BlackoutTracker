@@ -6,12 +6,11 @@ from zoneinfo import ZoneInfo
 
 KYIV = ZoneInfo('Europe/Kyiv')
 GROUPS = [f'{a}.{b}' for a in range(1, 7) for b in (1, 2)]
-PRIMARY = 'https://gpv-ua.com/api/v1/regions/kyiv-region/groups/{}'
-BACKUP = 'https://raw.githubusercontent.com/Baskerville42/outage-data-ua/main/data/kyiv-region.json'
+SCHEDULE_URL = 'https://raw.githubusercontent.com/Baskerville42/outage-data-ua/main/data/kyiv-region.json'
 
 
 def read_json(url):
-    request = Request(url, headers={'User-Agent': 'BlackoutTracker/0.2', 'Accept': 'application/json'})
+    request = Request(url, headers={'User-Agent': 'BlackoutTracker/0.6', 'Accept': 'application/json'})
     with urlopen(request, timeout=15) as response:
         body = response.read(2_000_001)
         if len(body) > 2_000_000:
@@ -26,37 +25,9 @@ def timestamp(value):
     return result
 
 
-def normalize_gpv(data, group):
-    if data['region']['slug'] != 'kyiv-region' or data['group'] != group:
-        raise ValueError('Джерело повернуло інший регіон або чергу')
-    health = data['region']['health']
-    checked = health['succeededAt']
-    timestamp(checked)
-    days = []
-    for day in data['days']:
-        datetime.strptime(day['date'], '%Y-%m-%d')
-        if day['status'] not in ('scheduled', 'unknown', 'emergency', 'no-outages'):
-            raise ValueError('Невідомий стан графіка')
-        intervals = []
-        previous_end = 0
-        for start, end, kind in day['intervals']:
-            if type(start) is not int or type(end) is not int or not 0 <= start < end <= 1440:
-                raise ValueError('Некоректний інтервал')
-            if start < previous_end or kind not in ('off', 'maybe'):
-                raise ValueError('Некоректний тип або перетин інтервалів')
-            intervals.append([start, end, kind])
-            previous_end = end
-        days.append({'date': day['date'], 'status': day['status'], 'intervals': intervals})
-    if len({d['date'] for d in days}) != len(days):
-        raise ValueError('Дубльовані дати')
-    return {'group': group, 'source': 'GPV-UA', 'checked': checked,
-            'updated': health.get('sourceUpdatedAt'), 'stale': health.get('stale', True)
-            or health.get('status') != 'ok', 'days': days}
-
-
 def normalize_github(data, group):
     if data['regionId'] != 'kyiv-region' or data['lastUpdateStatus']['ok'] is not True:
-        raise ValueError('Резервне джерело не оновлюється')
+        raise ValueError('Не вдалося підтвердити актуальність графіка')
     days = []
     for epoch, groups in data['fact']['data'].items():
         slots = groups.get('GPV' + group)
@@ -69,7 +40,7 @@ def normalize_github(data, group):
                       'second': [(30, 60, 'off')], 'maybe': [(0, 60, 'maybe')],
                       'mfirst': [(0, 30, 'maybe')], 'msecond': [(30, 60, 'maybe')]}
             if kind not in ranges:
-                raise ValueError('Невідомий стан у резервному графіку')
+                raise ValueError('Невідомий стан у графіку')
             for start, end, state in ranges[kind]:
                 start, end = start + (hour - 1) * 60, end + (hour - 1) * 60
                 if intervals and intervals[-1][1] == start and intervals[-1][2] == state:
@@ -81,7 +52,7 @@ def normalize_github(data, group):
     checked = data['lastUpdateStatus']['at']
     timestamp(checked)
     updated = datetime.strptime(data['fact']['update'], '%d.%m.%Y %H:%M').replace(tzinfo=KYIV)
-    return {'group': group, 'source': 'GitHub · резерв', 'checked': checked,
+    return {'group': group, 'provider': 'github', 'checked': checked,
             'updated': updated.isoformat(), 'stale': False, 'days': days}
 
 
@@ -91,18 +62,18 @@ def fresh(schedule, now):
 
 
 def fetch_schedule(group):
-    errors = []
-    for url, parser in ((PRIMARY.format(group), normalize_gpv), (BACKUP, normalize_github)):
-        try:
-            result = parser(read_json(url), group)
-            now = datetime.now(KYIV)
-            if not fresh(result, now) or not any(d['date'] == now.date().isoformat() for d in result['days']):
-                raise ValueError('Джерело не має свіжих даних на сьогодні')
-            result['warning'] = 'Основне джерело недоступне; використано резерв.' if errors else ''
-            return result
-        except Exception as exc:
-            errors.append(f'{type(exc).__name__}: {exc}')
-    raise ValueError('Не вдалося оновити графік. ' + ' / '.join(errors))
+    if group not in GROUPS:
+        raise ValueError('Невідома черга')
+    try:
+        result = normalize_github(read_json(SCHEDULE_URL), group)
+        now = datetime.now(KYIV)
+        if not fresh(result, now) or not any(d['date'] == now.date().isoformat() for d in result['days']):
+            raise ValueError('Немає актуального графіка на сьогодні')
+        result['warning'] = ''
+        return result
+    except Exception:
+        # Keep transport URLs and provider names out of user-visible errors.
+        raise ValueError('Не вдалося отримати актуальний графік. Перевірте підключення та спробуйте пізніше.') from None
 
 
 def clock_text(minutes):
