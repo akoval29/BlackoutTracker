@@ -1,0 +1,15 @@
+BlackoutTracker bundles unmodified dynamically linked Qt/PySide6 components.
+PySide6 Essentials metadata: LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only.
+This distribution uses the LGPLv3 option. LGPLv3 and GPLv3 texts are included.
+You may replace the bundled LGPL libraries with compatible modified versions.
+Reverse engineering for debugging modifications to these libraries is permitted.
+
+Upstream source code for the bundled versions:
+Qt 6.12.0: https://download.qt.io/archive/qt/6.12/6.12.0/single/
+PySide6 / Shiboken6 6.12.0: https://code.qt.io/pyside/pyside-setup.git/tree/?h=v6.12.0
+Qt third-party notices: https://doc.qt.io/qt-6/licenses-used-in-qt.html
+Python: https://www.python.org/downloads/source/
+
+Other dependency licenses are in the subdirectories of this folder.
+Schedule data is obtained from GPV-UA and Baskerville42/outage-data-ua;
+these are third-party services, not affiliated with BlackoutTracker.
