@@ -1,7 +1,7 @@
 import json
 from regions import DEFAULT_REGION, REGIONS, valid_group
 
-DEFAULTS = {'region': DEFAULT_REGION, 'group': '6.1', 'overlay_topmost': True, 'overlay_position': 'top-right', 'refresh_minutes': 2, 'sound_enabled': True, 'sound_name': 'warning'}
+DEFAULTS = {'region': DEFAULT_REGION, 'group': '6.1', 'overlay_topmost': True, 'overlay_position': 'top-right', 'refresh_minutes': 15, 'sound_enabled': True, 'sound_name': 'warning'}
 
 
 def normalize_settings(value, group='6.1'):
@@ -16,7 +16,7 @@ def normalize_settings(value, group='6.1'):
             result[key] = value[key]
     if value.get('sound_name') in ('warning', 'bell', 'siren'):
         result['sound_name'] = value['sound_name']
-    if value.get('overlay_position') in ('top', 'top-right', 'top-left', 'bottom-right', 'bottom-left'):
+    if value.get('overlay_position') in ('top', 'top-right', 'top-left', 'bottom-right', 'bottom-left', 'bottom'):
         result['overlay_position'] = value['overlay_position']
     interval = value.get('refresh_minutes')
     if type(interval) is int and 1 <= interval <= 30:

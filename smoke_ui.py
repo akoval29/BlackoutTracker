@@ -19,6 +19,7 @@ with patch.object(Window, 'refresh'):
     window = Window(folder, '6.1')
     window.received(normalize_github(json.loads(Path('tests/fixtures/kyiv-region.json').read_text(encoding='utf-8')), '6.1'))
     window.show()
+    QTest.qWait(400)
     app.processEvents()
     window.grab().save(str(folder / 'compact.png'))
     assert not window.expanded and not window.details.isVisible()
@@ -81,13 +82,14 @@ with patch.object(Window, 'refresh'):
     window.toggle_expanded()
     QTest.qWait(300)
     assert not window.expanded
-    assert window.main_panel.height() == 290
+    assert window.main_panel.height() == 240
     assert window.poll_timer.interval() == 420000
     assert not json.loads((folder / 'settings.json').read_text(encoding='utf-8'))['overlay_topmost']
     window.configure()
     QTest.qWait(300)
     with patch('app.QSystemTrayIcon.isSystemTrayAvailable', return_value=True):
         window.hide_to_tray()
+        QTest.qWait(400)
     assert not window.isVisible()
     window.reveal()
     window.close_settings()

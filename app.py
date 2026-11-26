@@ -4,16 +4,18 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-from PySide6.QtCore import Qt, QTimer, QThread, Signal, QLockFile, QRect, QVariantAnimation, QEasingCurve
-from PySide6.QtGui import QColor, QIcon, QPainter, QPixmap, QFont
+from PySide6.QtCore import Qt, QTimer, QThread, Signal, QLockFile, QRect, QPoint, QEvent, QPropertyAnimation, QVariantAnimation, QEasingCurve
+from PySide6.QtGui import QColor, QIcon, QPainter
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QLabel, QPushButton, QComboBox, QDialog, QDialogButtonBox, QSystemTrayIcon, QMenu,
-    QFrame, QMessageBox, QScrollArea, QCheckBox, QSpinBox)
+    QFrame, QMessageBox, QScrollArea, QCheckBox, QSpinBox, QSizePolicy, QLayout, QAbstractButton, QAbstractSlider, QAbstractSpinBox)
+import autostart
 from preferences import load_settings
 from alerts import AlertState
 from schedule_chart import ScheduleChart
 from ripple import Ripple
 from side_select import SideSelect
+from outside_click import OutsideClickMonitor
 from regions import DEFAULT_REGION, REGIONS, groups_for, valid_group
 from core import KYIV, fetch_schedule, state_at, fresh, timestamp
 
@@ -31,19 +33,8 @@ QMenu::item:selected { background: #324760; }
 '''
 
 
-def icon(color):
-    pixmap = QPixmap(64, 64)
-    pixmap.fill(Qt.GlobalColor.transparent)
-    painter = QPainter(pixmap)
-    painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-    painter.setBrush(QColor(color))
-    painter.setPen(Qt.PenStyle.NoPen)
-    painter.drawEllipse(4, 4, 56, 56)
-    painter.setPen(QColor('#101722'))
-    painter.setFont(QFont('Segoe UI', 32, QFont.Weight.Bold))
-    painter.drawText(pixmap.rect(), Qt.AlignmentFlag.AlignCenter, 'ϟ')
-    painter.end()
-    return QIcon(pixmap)
+def app_icon():
+    return QIcon(str(Path(__file__).resolve().parent / 'assets' / 'app-icon.ico'))
 
 
 def save_json(path, value):
@@ -105,6 +96,7 @@ class Setup(QDialog):
 
 class SettingsPanel(QWidget):
     saved = Signal(dict)
+    position_requested = Signal()
 
     def __init__(self, preferences, parent=None):
         super().__init__(parent)
@@ -129,11 +121,18 @@ class SettingsPanel(QWidget):
         self.region_choice = SideSelect('Регіон', self)
         for key, title in REGIONS.items():
             self.region_choice.addItem(title, key)
-        layout.addWidget(self.region_choice)
+        self.region_choice.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
+        self.region_choice.currentTextChanged.connect(self.region_choice.setToolTip)
+        self.region_choice.setToolTip(self.region_choice.currentText())
         self.combo = SideSelect('Черга', self)
         self.combo.addItems(groups_for(DEFAULT_REGION))
         self.combo.setAccessibleName('Черга')
-        layout.addWidget(self.combo)
+        self.combo.setFixedWidth(106)
+        selection_row = QHBoxLayout()
+        selection_row.setSpacing(6)
+        selection_row.addWidget(self.region_choice, 1)
+        selection_row.addWidget(self.combo)
+        layout.addLayout(selection_row)
         row = QHBoxLayout()
         row.addWidget(QLabel('Оновлювати кожні:'))
         self.interval = QSpinBox()
@@ -149,10 +148,12 @@ class SettingsPanel(QWidget):
         self.topmost = QCheckBox('Показувати віджет поверх усіх вікон')
         layout.addWidget(self.topmost)
         self.position = SideSelect('Розташування віджета', self)
-        for title, key in [('Верх', 'top'), ('Верх-право', 'top-right'), ('Верх-ліво', 'top-left'),
-                           ('Низ-право', 'bottom-right'), ('Низ-ліво', 'bottom-left')]:
+        self.position.menu_columns = 3
+        for title, key in [('Верх-ліво', 'top-left'), ('Верх-центр', 'top'), ('Верх-право', 'top-right'),
+                           ('Низ-ліво', 'bottom-left'), ('Низ-центр', 'bottom'), ('Низ-право', 'bottom-right')]:
             self.position.addItem(title, key)
         layout.addWidget(self.position)
+        self.position.activated.connect(lambda _: self.position_requested.emit())
 
         section('Сповіщення та звук')
         self.sound = QCheckBox('Звук за 5 хвилин до відключення')
@@ -171,6 +172,16 @@ class SettingsPanel(QWidget):
         hint.setWordWrap(True)
         hint.setStyleSheet('color: #a6b6cd; font-size: 12px;')
         layout.addWidget(hint)
+        section('Запуск програми')
+        self.autostart = QCheckBox('Запускати разом із Windows')
+        self.autostart.setToolTip('Після входу у Windows — одразу в трей. Після переміщення папки увімкніть опцію повторно. Якщо Windows вимкнула автозапуск, перевірте Диспетчер завдань.')
+        layout.addWidget(self.autostart)
+        self.autostart_error = QLabel()
+        self.autostart_error.setWordWrap(True)
+        self.autostart_error.setStyleSheet('color: #f6ad55; font-size: 12px;')
+        self.autostart_error.hide()
+        layout.addWidget(self.autostart_error)
+        self.autostart.toggled.connect(self.change_autostart)
         self.error = QLabel()
         self.error.setWordWrap(True)
         self.error.setStyleSheet('color: #f6ad55;')
@@ -182,6 +193,31 @@ class SettingsPanel(QWidget):
         for signal in (self.combo.currentTextChanged, self.interval.valueChanged,
                        self.position.currentIndexChanged, self.topmost.toggled, self.sound.toggled, self.sound_choice.currentIndexChanged):
             signal.connect(self.changed)
+
+    def refresh_autostart(self):
+        self.autostart.blockSignals(True)
+        try:
+            self.autostart.setChecked(autostart.is_enabled())
+            self.autostart.setEnabled(sys.platform == 'win32')
+            self.autostart_error.hide()
+        except OSError as exc:
+            self.autostart.setEnabled(False)
+            self.autostart_error.setText(f'Не вдалося перевірити автозапуск: {exc}')
+            self.autostart_error.show()
+        finally:
+            self.autostart.blockSignals(False)
+
+    def change_autostart(self, enabled):
+        if self.loading:
+            return
+        try:
+            autostart.set_enabled(enabled)
+        except OSError as exc:
+            self.refresh_autostart()
+            self.autostart_error.setText(f'Не вдалося змінити автозапуск: {exc}')
+            self.autostart_error.show()
+        else:
+            self.refresh_autostart()
 
     def region_changed(self, *_):
         group = self.combo.currentText()
@@ -200,6 +236,7 @@ class SettingsPanel(QWidget):
             self.saved.emit(self.values())
 
     def load(self, preferences):
+        self.refresh_autostart()
         self.loading = True
         try:
             self.region_choice.blockSignals(True)
@@ -276,6 +313,9 @@ class CountdownOverlay(QWidget):
         layout.addWidget(self.timer)
         self.ripple = Ripple(self)
         self.last_position = None
+        self.travel = QPropertyAnimation(self, b'pos', self)
+        self.travel.setDuration(500)
+        self.travel.setEasingCurve(QEasingCurve.Type.InOutCubic)
         self.text_motion = QVariantAnimation(self)
         self.text_motion.setDuration(420)
         self.text_motion.setStartValue(0.0)
@@ -288,7 +328,8 @@ class CountdownOverlay(QWidget):
         self.timer.update()
 
     def present(self, label, countdown, color, position='top-right'):
-        animate = not self.isVisible() or position != self.last_position
+        appearing = not self.isVisible()
+        relocating = position != self.last_position
         self.last_position = position
         self.timer.setText(countdown)
         self.timer.ink = QColor(color)
@@ -308,15 +349,29 @@ class CountdownOverlay(QWidget):
             # Reserve the title-bar controls at the top-right of maximized windows.
             positions = {
                 'top': (area.left() + (area.width() - self.width()) // 2, area.top()),
-                'top-right': (right, min(bottom, area.top() + 40)),
+                'top-right': (max(area.left(), right - 150), area.top()),
                 'top-left': (area.left(), area.top()),
+                'bottom': (area.left() + (area.width() - self.width()) // 2, bottom),
                 'bottom-right': (right, bottom),
                 'bottom-left': (area.left(), bottom),
             }
-            self.move(*positions.get(position, positions['top-right']))
+            destination = QPoint(*positions.get(position, positions['top-right']))
+            if appearing:
+                self.travel.stop()
+                self.move(destination)
+            elif relocating:
+                self.travel.stop()
+                self.ripple.stop()
+                self.text_motion.stop()
+                self.animate_text(1.0)
+                self.travel.setStartValue(self.pos())
+                self.travel.setEndValue(destination)
+                self.travel.start()
+            elif self.travel.state() != self.travel.State.Running:
+                self.move(destination)
         if not self.isVisible():
             self.show()
-        if animate:
+        if appearing:
             self.text_motion.stop()
             self.animate_text(0.0)
             self.text_motion.start()
@@ -325,6 +380,7 @@ class CountdownOverlay(QWidget):
 
     def hideEvent(self, event):
         self.ripple.stop()
+        self.travel.stop()
         self.text_motion.stop()
         super().hideEvent(event)
 
@@ -368,16 +424,18 @@ class Window(QMainWindow):
         self.worker = None
         self.offline = False
         self.quitting = False
-        self.last_color = None
+        self.hiding_to_tray = False
         self.setWindowTitle('BlackoutTracker')
+        self.setWindowIcon(app_icon())
         self.expanded = False
         self.settings_open = False
         self.drawer_width = 360
-        self.panel_height = 290.0
+        self.panel_height = 240.0
         self.drawer_reveal = 0.0
         self.motion = QVariantAnimation(self)
         self.motion.setDuration(260)
         self.motion.valueChanged.connect(self.animate_panels)
+        self.motion.finished.connect(self.finish_tray_animation)
         self.motion.setEasingCurve(QEasingCurve.Type.InOutCubic)
         self.setWindowFlags(Qt.WindowType.Tool | Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
@@ -399,23 +457,37 @@ class Window(QMainWindow):
         self.settings_panel.setStyleSheet('#settingsPanel { background: #182536; }')
         self.drawer.setWidget(self.settings_panel)
         self.settings_panel.saved.connect(self.apply_settings)
+        self.settings_panel.position_requested.connect(self.show_overlay)
         self.drawer_clip.hide()
         layout = QVBoxLayout(root)
+        layout.setSizeConstraint(QLayout.SizeConstraint.SetNoConstraint)
         layout.setContentsMargins(14, 10, 14, 10)
-        layout.setSpacing(6)
+        layout.setSpacing(10)
+        layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         header = QHBoxLayout()
+        header.setSpacing(4)
+        logo = QLabel()
+        logo.setFixedSize(24, 24)
+        logo.setPixmap(app_icon().pixmap(24, 24))
+        logo.setAccessibleName('Іконка BlackoutTracker')
+        header.addWidget(logo)
         title = QLabel('BlackoutTracker')
-        title.setStyleSheet('font-size: 20px; font-weight: 700;')
+        title.setStyleSheet('font-size: 16px; font-weight: 700;')
         header.addWidget(title)
         header.addStretch()
         self.widget_button = QPushButton('Віджет: викл')
         self.widget_button.setStyleSheet('font-size: 12px; padding: 9px 7px;')
         self.widget_button.clicked.connect(self.toggle_overlay)
         header.addWidget(self.widget_button)
+        self.expand_button = QPushButton('Подробиці ↑')
+        self.expand_button.setStyleSheet('font-size: 12px; padding: 9px 7px;')
+        self.expand_button.clicked.connect(self.toggle_expanded)
+        header.addWidget(self.expand_button)
         hide = QPushButton('×')
         hide.setAccessibleName('Сховати у трей')
         hide.setToolTip('Сховати у трей')
-        hide.setFixedWidth(40)
+        hide.setFixedWidth(32)
+        hide.setStyleSheet('padding: 9px 4px;')
         hide.clicked.connect(self.hide_to_tray)
         header.addWidget(hide)
         layout.addLayout(header)
@@ -423,8 +495,10 @@ class Window(QMainWindow):
         self.subtitle.setObjectName('muted')
         card = QFrame()
         card.setObjectName('card')
+        card.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Maximum)
         cardlayout = QVBoxLayout(card)
         cardlayout.setContentsMargins(12, 8, 12, 8)
+        cardlayout.setSpacing(6)
         self.subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
         cardlayout.addWidget(self.subtitle)
         divider = QFrame()
@@ -451,7 +525,7 @@ class Window(QMainWindow):
         details_body = QWidget()
         details_layout = QVBoxLayout(details_body)
         details_layout.setContentsMargins(0, 0, 0, 0)
-        details_layout.setSpacing(6)
+        details_layout.setSpacing(12)
         details_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.details.setWidget(details_body)
         self.chart = ScheduleChart()
@@ -475,10 +549,7 @@ class Window(QMainWindow):
 
         layout.addWidget(self.details, 1)
         self.details.hide()
-        self.expand_button = QPushButton('Розгорнути · графік і подробиці ↑')
-        self.expand_button.clicked.connect(self.toggle_expanded)
-        layout.addWidget(self.expand_button)
-        self.tray = QSystemTrayIcon(icon('#8190a8'), self)
+        self.tray = QSystemTrayIcon(app_icon(), self)
         menu = QMenu(self)
         menu.addAction('Відкрити графік', self.reveal)
         menu.addAction('Оновити', self.refresh)
@@ -500,6 +571,9 @@ class Window(QMainWindow):
         self.dock_screen.availableGeometryChanged.connect(self.anchor)
         QApplication.instance().primaryScreenChanged.connect(self.screen_changed)
         self.anchor()
+        self.outside_clicks = OutsideClickMonitor(self)
+        self.outside_clicks.pressed.connect(self.outside_pressed)
+        QApplication.instance().installEventFilter(self)
         QTimer.singleShot(0, self.refresh)
 
     def screen_changed(self, screen):
@@ -509,6 +583,8 @@ class Window(QMainWindow):
             self.anchor()
 
     def anchor(self, *_, animate=False):
+        if self.hiding_to_tray:
+            return
         screen = self.dock_screen or QApplication.primaryScreen()
         if not screen:
             return
@@ -523,7 +599,7 @@ class Window(QMainWindow):
         self.setGeometry(QRect(area.right() - width + 1,
                                area.bottom() - height + 1, width, height))
         self.main_start_height = self.panel_height
-        self.main_end_height = min(560 if self.expanded else 290, height)
+        self.main_end_height = min(530 if self.expanded else 240, height)
         self.drawer_start = self.drawer_reveal
         self.drawer_end = self.drawer_width if self.settings_open else 0
         if animate and self.isVisible():
@@ -560,16 +636,56 @@ class Window(QMainWindow):
         self.arrange_panels()
 
     def toggle_expanded(self):
+        if self.hiding_to_tray:
+            return
         self.expanded = not self.expanded
         if not self.expanded:
             self.settings_open = False
         self.details.setVisible(self.expanded)
-        self.expand_button.setText('Згорнути подробиці ↓' if self.expanded else 'Розгорнути · графік і подробиці ↑')
+        self.expand_button.setText('Подробиці ↓' if self.expanded else 'Подробиці ↑')
         self.anchor(animate=True)
 
     def showEvent(self, event):
         super().showEvent(event)
-        self.anchor()
+        if not self.expanded:
+            self.panel_height = 0.0
+            self.anchor(animate=True)
+        else:
+            self.anchor()
+        if hasattr(self, 'outside_clicks'):
+            self.outside_clicks.start()
+
+    def hideEvent(self, event):
+        if hasattr(self, 'outside_clicks'):
+            self.outside_clicks.stop()
+        super().hideEvent(event)
+
+    def outside_pressed(self, point):
+        if not self.isVisible():
+            return
+        widgets = [self.main_panel]
+        if self.drawer_clip.isVisible():
+            widgets.append(self.drawer_clip)
+        widgets.extend(selector.menu for selector in self.settings_panel.findChildren(SideSelect)
+                       if selector.menu.isVisible())
+        if self.tray.contextMenu().isVisible():
+            widgets.append(self.tray.contextMenu())
+        for widget in widgets:
+            if QRect(widget.mapToGlobal(QPoint()), widget.size()).contains(point):
+                return
+        self.hide_to_tray()
+
+    def eventFilter(self, watched, event):
+        if self.isVisible() and event.type() == QEvent.Type.MouseButtonRelease and event.button() == Qt.MouseButton.LeftButton:
+            if isinstance(watched, QWidget) and (watched == self.main_panel or self.main_panel.isAncestorOf(watched)):
+                control = watched
+                while control != self.main_panel:
+                    if isinstance(control, (QAbstractButton, QComboBox, QAbstractSlider, QAbstractSpinBox)):
+                        return False
+                    control = control.parentWidget()
+                self.toggle_expanded()
+                return True
+        return super().eventFilter(watched, event)
 
     def load_cache(self):
         self.schedule = None
@@ -648,10 +764,6 @@ class Window(QMainWindow):
             self.countdown.setText('—')
             self.target.setText('Очікуємо наступну відому подію')
         self.countdown.setStyleSheet(f'font-size: 40px; font-weight: 650; color: {color};')
-        if color != self.last_color:
-            self.tray.setIcon(icon(color))
-            self.setWindowIcon(icon(color))
-            self.last_color = color
         self.tray.setToolTip(f'{REGIONS[self.region]} · Черга {self.group}\n{label}\n{self.countdown.text()}')
         self.chart.set_schedule(self.schedule, now)
         if self.schedule:
@@ -681,6 +793,11 @@ class Window(QMainWindow):
         self.alerts.dismiss()
         self.sync_widget_button()
 
+    def show_overlay(self):
+        self.manual_overlay = True
+        self.alerts.dismissed = None
+        self.tick()
+
     def toggle_overlay(self):
         if self.overlay.isVisible():
             self.overlay.hide()
@@ -691,6 +808,8 @@ class Window(QMainWindow):
             self.tick()
 
     def configure(self):
+        if self.hiding_to_tray:
+            return
         if self.settings_open:
             self.close_settings()
             return
@@ -711,6 +830,9 @@ class Window(QMainWindow):
             self.settings_panel.error.setText(f'Не вдалося зберегти: {exc}')
             self.settings_panel.error.show()
             return
+        if updated['overlay_position'] != self.preferences['overlay_position']:
+            self.manual_overlay = True
+            self.alerts.dismissed = None
         group_changed = (updated['region'], updated['group']) != (self.region, self.group)
         self.settings_panel.error.clear()
         self.settings_panel.error.hide()
@@ -732,8 +854,11 @@ class Window(QMainWindow):
             self.refresh()
 
     def reveal(self):
+        if self.hiding_to_tray:
+            self.motion.stop()
+            self.hiding_to_tray = False
+            self.anchor(animate=True)
         self.showNormal()
-        self.anchor()
         self.raise_()
         self.activateWindow()
 
@@ -742,12 +867,35 @@ class Window(QMainWindow):
             self.reveal()
 
     def hide_to_tray(self):
-        if QSystemTrayIcon.isSystemTrayAvailable():
-            self.hide()
+        if not QSystemTrayIcon.isSystemTrayAvailable() or not self.isVisible() or self.hiding_to_tray:
+            return
+        for selector in self.settings_panel.findChildren(SideSelect):
+            selector.menu.dismiss(animated=False)
+        self.motion.stop()
+        self.hiding_to_tray = True
+        self.main_start_height = self.panel_height
+        self.main_end_height = 0.0
+        self.drawer_start = self.drawer_reveal
+        self.drawer_end = self.drawer_reveal
+        self.motion.setStartValue(0.0)
+        self.motion.setEndValue(1.0)
+        self.motion.start()
+
+    def finish_tray_animation(self):
+        if not self.hiding_to_tray:
+            return
+        self.hide()
+        self.hiding_to_tray = False
+        self.settings_open = False
+        self.expanded = False
+        self.details.hide()
+        self.expand_button.setText('Подробиці ↑')
+        self.drawer_reveal = 0.0
+        self.arrange_panels()
 
     def closeEvent(self, event):
         if QSystemTrayIcon.isSystemTrayAvailable():
-            self.hide()
+            self.hide_to_tray()
             event.ignore()
         else:
             self.quit_app()
@@ -766,6 +914,7 @@ class Window(QMainWindow):
 def main():
     app = QApplication(sys.argv)
     app.setApplicationName('BlackoutTracker')
+    app.setWindowIcon(app_icon())
     app.setStyle('Fusion')
     app.setStyleSheet(STYLE)
     app.setQuitOnLastWindowClosed(False)
@@ -793,7 +942,8 @@ def main():
         return 1
     lock = QLockFile(str(folder / 'app.lock'))
     if not lock.tryLock(100):
-        QMessageBox.information(None, 'BlackoutTracker', 'Застосунок уже працює. Відкрийте його через іконку в треї.')
+        if '--autostart' not in sys.argv:
+            QMessageBox.information(None, 'BlackoutTracker', 'Застосунок уже працює. Відкрийте його через іконку в треї.')
         return 0
     try:
         stored = json.loads((folder / 'settings.json').read_text(encoding='utf-8'))
@@ -807,7 +957,8 @@ def main():
         group = dialog.combo.currentText()
         save_json(folder / 'settings.json', {'region': dialog.region_choice.currentData(), 'group': group})
     window = Window(folder, group)
-    window.show()
+    if '--autostart' not in sys.argv or not QSystemTrayIcon.isSystemTrayAvailable():
+        window.show()
     return app.exec()
 
 

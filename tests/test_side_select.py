@@ -1,7 +1,8 @@
 import os
 import unittest
 os.environ.setdefault('QT_QPA_PLATFORM', 'offscreen')
-from PySide6.QtCore import QPoint
+from PySide6.QtCore import QPoint, Qt
+from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication
 from app import SettingsPanel, STYLE
 from preferences import normalize_settings
@@ -24,18 +25,72 @@ class SideSelectTests(unittest.TestCase):
         try:
             for selector in (panel.region_choice, panel.combo, panel.position, panel.sound_choice):
                 selector.showPopup()
-                self.app.processEvents()
+                QTest.qWait(400)
                 self.assertTrue(selector.menu.isVisible())
                 self.assertLess(selector.menu.geometry().right(), panel.mapToGlobal(QPoint()).x())
-                selector.menu.actions()[2].trigger()
+                selector.menu.buttons[2].click()
                 self.assertEqual(selector.currentIndex(), 2)
                 self.assertEqual(saved[-1], panel.values())
                 selector.hidePopup()
+                QTest.qWait(400)
                 self.assertFalse(selector.menu.isVisible())
             count = len(saved)
             panel.position.showPopup()
             panel.position.hidePopup()
             self.assertEqual(len(saved), count)
+        finally:
+            panel.close()
+            panel.deleteLater()
+
+    def test_grid_height_and_click_toggle(self):
+        panel = SettingsPanel(normalize_settings({'region': 'kyiv'}))
+        panel.resize(360, 290)
+        panel.move(450, 0)
+        panel.show()
+        self.app.processEvents()
+        selector = panel.combo
+        try:
+            QTest.mouseClick(selector, Qt.MouseButton.LeftButton)
+            QTest.qWait(400)
+            self.assertTrue(selector.menu.isVisible())
+            self.assertLessEqual(selector.menu.height(), panel.height())
+            self.assertEqual(len(selector.menu.buttons), 60)
+            self.assertGreater(selector.menu.scroll.widget().layout().columnCount(), 1)
+            QTest.mouseClick(selector, Qt.MouseButton.LeftButton)
+            QTest.qWait(400)
+            self.assertFalse(selector.menu.isVisible())
+            QTest.mouseClick(selector, Qt.MouseButton.LeftButton)
+            QTest.qWait(50)
+            QTest.mouseClick(selector, Qt.MouseButton.LeftButton)
+            QTest.qWait(400)
+            self.assertFalse(selector.menu.isVisible())
+            selector.showPopup()
+            QTest.qWait(400)
+            selector.menu.buttons[-1].click()
+            QTest.qWait(400)
+            self.assertEqual(selector.currentText(), '60.1')
+            self.assertFalse(selector.menu.isVisible())
+        finally:
+            panel.close()
+            panel.deleteLater()
+
+    def test_position_grid_matches_screen_directions(self):
+        panel = SettingsPanel(normalize_settings({}))
+        panel.resize(360, 530)
+        panel.move(450, 0)
+        panel.show()
+        try:
+            selector = panel.position
+            self.assertEqual([selector.itemData(i) for i in range(selector.count())],
+                             ['top-left', 'top', 'top-right', 'bottom-left', 'bottom', 'bottom-right'])
+            selector.showPopup()
+            QTest.qWait(400)
+            grid = selector.menu.scroll.widget().layout()
+            self.assertEqual(grid.columnCount(), 3)
+            self.assertEqual(grid.rowCount(), 2)
+            selector.menu.buttons[4].click()
+            self.assertEqual(panel.values()['overlay_position'], 'bottom')
+            self.assertEqual(normalize_settings(panel.values())['overlay_position'], 'bottom')
         finally:
             panel.close()
             panel.deleteLater()

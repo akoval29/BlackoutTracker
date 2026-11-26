@@ -60,8 +60,8 @@ class AlertTests(unittest.TestCase):
     def test_missing_preferences_get_defaults_and_bad_interval_rejected(self):
         defaults = normalize_settings({'group': '2.2'}, '2.2')
         self.assertTrue(defaults['overlay_topmost'])
-        self.assertEqual(defaults['refresh_minutes'], 2)
+        self.assertEqual(defaults['refresh_minutes'], 15)
         self.assertTrue(defaults['sound_enabled'])
         for interval in (0, 31, True, '5', None):
-            self.assertEqual(normalize_settings({'refresh_minutes': interval})['refresh_minutes'], 2)
+            self.assertEqual(normalize_settings({'refresh_minutes': interval})['refresh_minutes'], 15)
         self.assertEqual(normalize_settings({'refresh_minutes': 5})['refresh_minutes'], 5)
