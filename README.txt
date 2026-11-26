@@ -57,10 +57,10 @@ Python, Qt та залежності вже включено. Не перено�
 Розробка та перевірки
 python -m venv .venv
 .venv\Scripts\python -m pip install -r requirements-build.txt
-.venv\Scripts\python app.py
+.venv\Scripts\python main.py
 .venv\Scripts\python -m unittest discover -s tests
-.venv\Scripts\python smoke_ui.py
-powershell -ExecutionPolicy Bypass -File build.ps1
+.venv\Scripts\python -m tools.check_ui
+powershell -ExecutionPolicy Bypass -File tools/build_portable.ps1
 
 Тестові дані: tests/fixtures. Знімки перевірок і проміжна збірка: build.
 Готова portable-папка та архів: dist. ZIP не містить персональних налаштувань.
@@ -69,3 +69,14 @@ powershell -ExecutionPolicy Bypass -File build.ps1
 
 PySide6 / Qt використовуються як динамічні бібліотеки за LGPLv3.
 Ліцензії сторонніх компонентів постачаються в папці licenses.
+
+Структура коду
+main.py — точка запуску.
+blackout_tracker/application.py — ініціалізація та цикл застосунку.
+blackout_tracker/ui — головне вікно, налаштування, віджет і анімації.
+blackout_tracker/schedule.py — отримання, перевірка та обчислення графіка.
+blackout_tracker/schedule_worker.py — фонове завантаження графіка.
+blackout_tracker/settings.py і storage.py — налаштування та збереження даних.
+blackout_tracker/notifications.py, audio.py — сповіщення та звуки.
+blackout_tracker/windows_autostart.py — автозапуск Windows.
+assets — іконка й звуки; tools — збірка та перевірка інтерфейсу; tests — тести.

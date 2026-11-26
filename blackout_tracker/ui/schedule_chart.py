@@ -2,7 +2,7 @@ from datetime import timedelta
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QHBoxLayout, QScrollArea, QSizePolicy
-from core import clock_text
+from blackout_tracker.schedule import format_time
 
 
 def day_segments(day):
@@ -72,8 +72,8 @@ class ScheduleChart(QWidget):
                 grid.setContentsMargins(0, 0, 0, 0)
                 grid.setSpacing(4)
                 for index, (start, end, state) in enumerate(segments):
-                    text = f'{clock_text(start)} – {clock_text(end)}'
-                    label = QLabel(f'{clock_text(start)}\n{clock_text(end)}')
+                    text = f'{format_time(start)} – {format_time(end)}'
+                    label = QLabel(f'{format_time(start)}\n{format_time(end)}')
                     label.setAlignment(Qt.AlignmentFlag.AlignCenter)
                     label.setMinimumHeight(36)
                     label.setMinimumWidth(54)

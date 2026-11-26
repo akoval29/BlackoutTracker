@@ -7,10 +7,12 @@ from pathlib import Path
 from unittest.mock import patch
 os.environ.setdefault('QT_QPA_PLATFORM', 'offscreen')
 from PySide6.QtWidgets import QApplication
-from app import Window, SettingsPanel, Setup
-from core import normalize_github, fetch_schedule
-from preferences import normalize_settings, load_settings
-from regions import REGIONS, DEFAULT_REGION, groups_for
+from blackout_tracker.ui.main_window import MainWindow
+from blackout_tracker.ui.settings_panel import SettingsPanel
+from blackout_tracker.ui.setup_dialog import SetupDialog
+from blackout_tracker.schedule import parse_schedule_response, fetch_schedule
+from blackout_tracker.settings import normalize_settings, load_settings
+from blackout_tracker.regions import REGIONS, DEFAULT_REGION, groups_for
 
 
 class RegionTests(unittest.TestCase):
@@ -23,22 +25,22 @@ class RegionTests(unittest.TestCase):
         for region in REGIONS:
             raw = copy.deepcopy(self.raw)
             raw['regionId'] = region
-            with patch('core.read_json', return_value=raw) as read, patch('core.fresh', return_value=True):
+            with patch('blackout_tracker.schedule.read_json', return_value=raw) as read, patch('blackout_tracker.schedule.is_schedule_fresh', return_value=True):
                 # Fetch may reject the fixture date; URL and normalization remain verifiable.
                 try:
                     fetch_schedule('6.1', region)
                 except ValueError:
                     pass
                 self.assertTrue(read.call_args.args[0].endswith('/' + region + '.json'))
-            self.assertEqual(normalize_github(raw, '6.1', region)['region'], region)
+            self.assertEqual(parse_schedule_response(raw, '6.1', region)['region'], region)
         with self.assertRaises(ValueError):
-            normalize_github(self.raw, '6.1', 'odesa')
+            parse_schedule_response(self.raw, '6.1', 'odesa')
 
     def test_emergency_notice_not_general_advice(self):
-        self.assertFalse(normalize_github(self.raw, '6.1')['warning'])
+        self.assertFalse(parse_schedule_response(self.raw, '6.1')['warning'])
         raw = copy.deepcopy(self.raw)
         raw['attention'] = {'text': 'Впровадженні екстрені відключення світла. Графіки тут не працюють.'}
-        result = normalize_github(raw, '6.1')
+        result = parse_schedule_response(raw, '6.1')
         self.assertTrue(result['warning'])
         self.assertIn('emergency', [day['status'] for day in result['days']])
 
@@ -50,14 +52,14 @@ class RegionTests(unittest.TestCase):
         self.assertEqual(normalize_settings({'region': '../bad'})['region'], DEFAULT_REGION)
 
     def test_live_change_cache_isolation_and_late_response(self):
-        with tempfile.TemporaryDirectory() as directory, patch.object(Window, 'refresh'):
+        with tempfile.TemporaryDirectory() as directory, patch.object(MainWindow, 'refresh'):
             folder = Path(directory)
-            window = Window(folder, '6.1')
+            window = MainWindow(folder, '6.1')
             try:
-                kyiv = normalize_github(self.raw, '6.1')
+                kyiv = parse_schedule_response(self.raw, '6.1')
                 window.received(kyiv)
                 self.assertTrue((folder / 'cache-kyiv-region-6.1.json').exists())
-                window.settings_panel.region_choice.setCurrentIndex(2)
+                window.settings_panel.region_selector.setCurrentIndex(2)
                 self.assertEqual(window.region, 'odesa')
                 self.assertIsNone(window.schedule)
                 window.received(kyiv)
@@ -65,25 +67,25 @@ class RegionTests(unittest.TestCase):
                 self.assertIn('Одеська', window.subtitle.text())
                 raw = copy.deepcopy(self.raw)
                 raw['regionId'] = 'odesa'
-                window.received(normalize_github(raw, '6.1', 'odesa'))
+                window.received(parse_schedule_response(raw, '6.1', 'odesa'))
                 self.assertTrue((folder / 'cache-odesa-6.1.json').exists())
                 self.assertEqual(load_settings(folder / 'settings.json', '6.1')['region'], 'odesa')
-                window.settings_panel.region_choice.setCurrentIndex(1)
-                self.assertEqual(window.settings_panel.combo.count(), 60)
-                window.settings_panel.combo.setCurrentText('60.1')
-                window.settings_panel.region_choice.setCurrentIndex(0)
+                window.settings_panel.region_selector.setCurrentIndex(1)
+                self.assertEqual(window.settings_panel.queue_selector.count(), 60)
+                window.settings_panel.queue_selector.setCurrentText('60.1')
+                window.settings_panel.region_selector.setCurrentIndex(0)
                 self.assertEqual(window.group, '1.1')
-                self.assertEqual(window.settings_panel.combo.count(), 12)
+                self.assertEqual(window.settings_panel.queue_selector.count(), 12)
             finally:
                 window.overlay.hide()
                 window.tray.hide()
                 window.deleteLater()
 
     def test_first_run_region_updates_groups(self):
-        setup = Setup('6.1')
-        setup.region_choice.setCurrentIndex(1)
-        self.assertEqual(setup.combo.count(), 60)
-        setup.combo.setCurrentText('60.1')
-        setup.region_choice.setCurrentIndex(2)
-        self.assertEqual(setup.combo.currentText(), '1.1')
+        setup = SetupDialog('6.1')
+        setup.region_selector.setCurrentIndex(1)
+        self.assertEqual(setup.queue_selector.count(), 60)
+        setup.queue_selector.setCurrentText('60.1')
+        setup.region_selector.setCurrentIndex(2)
+        self.assertEqual(setup.queue_selector.currentText(), '1.1')
         setup.deleteLater()

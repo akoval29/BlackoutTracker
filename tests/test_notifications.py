@@ -2,16 +2,16 @@ import json
 import unittest
 from datetime import datetime, timedelta
 from pathlib import Path
-from alerts import AlertState
-from core import KYIV, normalize_github
-from preferences import normalize_settings
+from blackout_tracker.notifications import AlertState
+from blackout_tracker.schedule import KYIV_TIMEZONE, parse_schedule_response
+from blackout_tracker.settings import normalize_settings
 
 
 class AlertTests(unittest.TestCase):
     def setUp(self):
         data = json.loads((Path(__file__).resolve().parents[1] / 'tests/fixtures/kyiv-region.json').read_text(encoding='utf-8'))
-        self.schedule = normalize_github(data, '6.1')
-        self.now = datetime(2026, 11, 25, 10, 25, tzinfo=KYIV)
+        self.schedule = parse_schedule_response(data, '6.1')
+        self.now = datetime(2026, 11, 25, 10, 25, tzinfo=KYIV_TIMEZONE)
         self.schedule['checked'] = self.now.isoformat()
         self.alert = AlertState()
 

@@ -19,7 +19,7 @@ def startup_command():
     else:
         pythonw = executable.with_name('pythonw.exe')
         arguments = [str(pythonw if pythonw.exists() else executable),
-                     str(Path(__file__).resolve().with_name('app.py'))]
+                     str(Path(__file__).resolve().parent.parent / 'main.py')]
     return subprocess.list2cmdline(arguments + ['--autostart'])
 
 
@@ -36,11 +36,11 @@ def is_enabled():
 
 def set_enabled(enabled):
     if winreg is None:
-        raise OSError('Автозапуск доступний лише у Windows.')
+        raise OSError('РђРІС‚РѕР·Р°РїСѓСЃРє РґРѕСЃС‚СѓРїРЅРёР№ Р»РёС€Рµ Сѓ Windows.')
     if enabled:
         command = startup_command()
         if len(command) > 260:
-            raise OSError('Шлях надто довгий. Перемістіть програму в папку з коротшим шляхом.')
+            raise OSError('РЁР»СЏС… РЅР°РґС‚Рѕ РґРѕРІРіРёР№. РџРµСЂРµРјС–СЃС‚С–С‚СЊ РїСЂРѕРіСЂР°РјСѓ РІ РїР°РїРєСѓ Р· РєРѕСЂРѕС‚С€РёРј С€Р»СЏС…РѕРј.')
         with winreg.CreateKeyEx(winreg.HKEY_CURRENT_USER, RUN_KEY, 0, winreg.KEY_SET_VALUE) as key:
             winreg.SetValueEx(key, VALUE_NAME, 0, winreg.REG_SZ, command)
     else:

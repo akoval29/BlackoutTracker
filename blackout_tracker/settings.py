@@ -1,5 +1,6 @@
+"""Defaults and validation for persisted user settings."""
 import json
-from regions import DEFAULT_REGION, REGIONS, valid_group
+from blackout_tracker.regions import DEFAULT_REGION, REGIONS, valid_group
 
 DEFAULTS = {'region': DEFAULT_REGION, 'group': '6.1', 'overlay_topmost': True, 'overlay_position': 'top-right', 'refresh_minutes': 15, 'sound_enabled': True, 'sound_name': 'warning'}
 

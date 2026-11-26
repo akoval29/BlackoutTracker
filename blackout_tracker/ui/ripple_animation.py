@@ -3,7 +3,7 @@ from PySide6.QtGui import QColor, QPainter, QPen
 from PySide6.QtWidgets import QWidget
 
 
-class Ripple(QWidget):
+class RippleAnimation(QWidget):
     """Short, click-through waves centred on the timer; never takes focus."""
 
     def __init__(self, parent):
@@ -16,28 +16,28 @@ class Ripple(QWidget):
         self.setFixedSize(320, 320)
         self.progress = 0.0
         self.color = QColor('#5ee0af')
-        self.motion = QVariantAnimation(self)
-        self.motion.setDuration(1100)
-        self.motion.setStartValue(0.0)
-        self.motion.setEndValue(1.0)
-        self.motion.valueChanged.connect(self.advance)
-        self.motion.finished.connect(self.hide)
+        self.panel_animation = QVariantAnimation(self)
+        self.panel_animation.setDuration(1100)
+        self.panel_animation.setStartValue(0.0)
+        self.panel_animation.setEndValue(1.0)
+        self.panel_animation.valueChanged.connect(self.advance)
+        self.panel_animation.finished.connect(self.hide)
 
     def start(self, center, color, topmost):
-        self.motion.stop()
+        self.panel_animation.stop()
         self.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint, topmost)
         self.move(center.x() - 160, center.y() - 160)
         self.color = QColor(color)
         self.progress = 0.0
         self.show()
-        self.motion.start()
+        self.panel_animation.start()
 
     def advance(self, value):
         self.progress = value
         self.update()
 
     def stop(self):
-        self.motion.stop()
+        self.panel_animation.stop()
         self.hide()
 
     def paintEvent(self, event):

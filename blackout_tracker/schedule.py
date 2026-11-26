@@ -4,9 +4,9 @@ import re
 from datetime import datetime, timedelta
 from urllib.request import Request, urlopen
 from zoneinfo import ZoneInfo
-from regions import DEFAULT_REGION, REGIONS, GROUPS, groups_for
+from blackout_tracker.regions import DEFAULT_REGION, REGIONS, groups_for
 
-KYIV = ZoneInfo('Europe/Kyiv')
+KYIV_TIMEZONE = ZoneInfo('Europe/Kyiv')
 SCHEDULE_URL = 'https://raw.githubusercontent.com/Baskerville42/outage-data-ua/main/data/kyiv-region.json'
 
 
@@ -19,14 +19,14 @@ def read_json(url):
         return json.loads(body)
 
 
-def timestamp(value):
+def parse_timestamp(value):
     result = datetime.fromisoformat(value.replace('Z', '+00:00'))
     if result.tzinfo is None:
         raise ValueError('Час джерела не має часового поясу')
     return result
 
 
-def normalize_github(data, group, region=DEFAULT_REGION):
+def parse_schedule_response(data, group, region=DEFAULT_REGION):
     if region not in REGIONS or group not in groups_for(region) or data['regionId'] != region or data['lastUpdateStatus']['ok'] is not True:
         raise ValueError('Не вдалося підтвердити актуальність графіка')
     days = []
@@ -48,15 +48,15 @@ def normalize_github(data, group, region=DEFAULT_REGION):
                     intervals[-1][1] = end
                 else:
                     intervals.append([start, end, state])
-        days.append({'date': datetime.fromtimestamp(int(epoch), KYIV).date().isoformat(),
+        days.append({'date': datetime.fromtimestamp(int(epoch), KYIV_TIMEZONE).date().isoformat(),
                      'status': 'scheduled' if intervals else 'no-outages', 'intervals': intervals})
     checked = data['lastUpdateStatus']['at']
-    timestamp(checked)
-    updated = datetime.strptime(data['fact']['update'], '%d.%m.%Y %H:%M').replace(tzinfo=KYIV)
+    parse_timestamp(checked)
+    updated = datetime.strptime(data['fact']['update'], '%d.%m.%Y %H:%M').replace(tzinfo=KYIV_TIMEZONE)
     attention = (data.get('attention') or {}).get('text', '').lower()
     emergency = bool(re.search(r'(?<!не )\b(?:впровадж\w*|застос\w*|діють|введен\w*)\s+(?:екстрен\w*|аварійн\w*)\s+відключ', attention))
     if emergency:
-        checked_date = timestamp(checked).astimezone(KYIV).date().isoformat()
+        checked_date = parse_timestamp(checked).astimezone(KYIV_TIMEZONE).date().isoformat()
         for day in days:
             if day['date'] == checked_date:
                 day['status'] = 'emergency'
@@ -65,8 +65,8 @@ def normalize_github(data, group, region=DEFAULT_REGION):
             'updated': updated.isoformat(), 'stale': False, 'days': days}
 
 
-def fresh(schedule, now):
-    age = (now - timestamp(schedule['checked'])).total_seconds()
+def is_schedule_fresh(schedule, now):
+    age = (now - parse_timestamp(schedule['checked'])).total_seconds()
     return not schedule['stale'] and -300 <= age <= 1800
 
 
@@ -75,9 +75,9 @@ def fetch_schedule(group, region=DEFAULT_REGION):
         raise ValueError('Невідома черга')
     try:
         url = SCHEDULE_URL.replace('/kyiv-region.json', f'/{region}.json')
-        result = normalize_github(read_json(url), group, region)
-        now = datetime.now(KYIV)
-        if not fresh(result, now) or not any(d['date'] == now.date().isoformat() for d in result['days']):
+        result = parse_schedule_response(read_json(url), group, region)
+        now = datetime.now(KYIV_TIMEZONE)
+        if not is_schedule_fresh(result, now) or not any(d['date'] == now.date().isoformat() for d in result['days']):
             raise ValueError('Немає актуального графіка на сьогодні')
         return result
     except Exception:
@@ -85,7 +85,7 @@ def fetch_schedule(group, region=DEFAULT_REGION):
         raise ValueError('Не вдалося отримати актуальний графік. Перевірте підключення та спробуйте пізніше.') from None
 
 
-def clock_text(minutes):
+def format_time(minutes):
     return f'{minutes // 60:02d}:{minutes % 60:02d}'
 
 
@@ -98,8 +98,8 @@ def outage_color(seconds):
     return '#' + ''.join(f'{channel:02x}' for channel in channels)
 
 
-def state_at(schedule, now):
-    """Return label, next known boundary and tray color. Never infer unknown days."""
+def get_schedule_state(schedule, now):
+    """Return label, next known boundary and countdown color. Never infer unknown days."""
     if not schedule:
         return 'Очікуємо графік', None, '#8190a8'
     daymap = {d['date']: d for d in schedule['days']}
@@ -108,7 +108,7 @@ def state_at(schedule, now):
         return 'Графік ще не опубліковано', None, '#8190a8'
     if current['status'] == 'emergency':
         return 'Екстрені відключення — графік не діє', None, '#f6ad55'
-    midnight = datetime.combine(now.date(), datetime.min.time(), KYIV)
+    midnight = datetime.combine(now.date(), datetime.min.time(), KYIV_TIMEZONE)
     minute = (now.hour * 60 + now.minute) + now.second / 60
     for start, end, kind in current['intervals']:
         if start <= minute < end:

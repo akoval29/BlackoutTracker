@@ -24,7 +24,7 @@ def direction_icon(position):
     return QIcon(image)
 
 
-class ChoiceMenu(QFrame):
+class SelectorPopup(QFrame):
     def __init__(self, selector):
         super().__init__(selector, Qt.WindowType.Tool | Qt.WindowType.FramelessWindowHint)
         self.selector = selector
@@ -36,10 +36,10 @@ class ChoiceMenu(QFrame):
         self.buttons = []
         self.target = QRect()
         self.closing = False
-        self.motion = QPropertyAnimation(self, b'geometry', self)
-        self.motion.setDuration(260)
-        self.motion.setEasingCurve(QEasingCurve.Type.InOutCubic)
-        self.motion.finished.connect(self.finished)
+        self.panel_animation = QPropertyAnimation(self, b'geometry', self)
+        self.panel_animation.setDuration(260)
+        self.panel_animation.setEasingCurve(QEasingCurve.Type.InOutCubic)
+        self.panel_animation.finished.connect(self.finished)
 
     def open_choices(self):
         selector = self.selector
@@ -89,13 +89,13 @@ class ChoiceMenu(QFrame):
         y = selector.mapToGlobal(QPoint()).y()
         y = max(area.top(), main_top, min(y, main_top + main.height() - height, area.bottom() - height + 1))
         self.target = QRect(x, y, width, height)
-        self.motion.stop()
+        self.panel_animation.stop()
         self.closing = False
         self.setGeometry(QRect(x + width - 1, y, 1, height))
         self.show()
-        self.motion.setStartValue(self.geometry())
-        self.motion.setEndValue(self.target)
-        self.motion.start()
+        self.panel_animation.setStartValue(self.geometry())
+        self.panel_animation.setEndValue(self.target)
+        self.panel_animation.start()
 
     def choose(self, index):
         self.selector.setCurrentIndex(index)
@@ -105,15 +105,15 @@ class ChoiceMenu(QFrame):
     def dismiss(self, animated=True):
         if not self.isVisible():
             return
-        self.motion.stop()
+        self.panel_animation.stop()
         self.closing = True
         if not animated:
             self.hide()
             return
         end = QRect(self.target.right(), self.target.y(), 1, self.target.height())
-        self.motion.setStartValue(self.geometry())
-        self.motion.setEndValue(end)
-        self.motion.start()
+        self.panel_animation.setStartValue(self.geometry())
+        self.panel_animation.setEndValue(end)
+        self.panel_animation.start()
 
     def finished(self):
         if self.closing:
@@ -131,14 +131,14 @@ class ChoiceMenu(QFrame):
             super().keyPressEvent(event)
 
 
-class SideSelect(QComboBox):
+class SideSelector(QComboBox):
     """Labelled selector with an animated, height-limited choice grid."""
 
     def __init__(self, label, panel):
         super().__init__(panel)
         self.label = label
         self.panel = panel
-        self.menu = ChoiceMenu(self)
+        self.menu = SelectorPopup(self)
         self.setAccessibleName(label)
         self.setStyleSheet('QComboBox { font-size: 12px; padding: 9px 7px; }')
         QApplication.instance().installEventFilter(self)

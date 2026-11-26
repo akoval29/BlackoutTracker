@@ -5,19 +5,21 @@ from unittest.mock import patch
 from PySide6.QtWidgets import QApplication
 from PySide6.QtGui import QFontDatabase
 from PySide6.QtTest import QTest
-from app import Window, Setup, STYLE
-from core import normalize_github
+from blackout_tracker.ui.main_window import MainWindow
+from blackout_tracker.ui.setup_dialog import SetupDialog
+from blackout_tracker.ui.theme import APP_STYLESHEET
+from blackout_tracker.schedule import parse_schedule_response
 
 app = QApplication([])
 QFontDatabase.addApplicationFont('C:/Windows/Fonts/segoeui.ttf')
 app.setStyle('Fusion')
-app.setStyleSheet(STYLE)
+app.setStyleSheet(APP_STYLESHEET)
 folder = Path('build/ui-check')
 folder.mkdir(parents=True, exist_ok=True)
 (folder / 'settings.json').write_text('{}', encoding='utf-8')
-with patch.object(Window, 'refresh'):
-    window = Window(folder, '6.1')
-    window.received(normalize_github(json.loads(Path('tests/fixtures/kyiv-region.json').read_text(encoding='utf-8')), '6.1'))
+with patch.object(MainWindow, 'refresh'):
+    window = MainWindow(folder, '6.1')
+    window.received(parse_schedule_response(json.loads(Path('tests/fixtures/kyiv-region.json').read_text(encoding='utf-8')), '6.1'))
     window.show()
     QTest.qWait(400)
     app.processEvents()
@@ -26,7 +28,7 @@ with patch.object(Window, 'refresh'):
     bottom_right = window.geometry().bottomRight()
     window.expand_button.click()
     QTest.qWait(100)
-    assert window.motion.state() == window.motion.State.Running
+    assert window.panel_animation.state() == window.panel_animation.State.Running
     QTest.qWait(200)
     app.processEvents()
     assert window.expanded and window.details.isVisible()
@@ -35,17 +37,17 @@ with patch.object(Window, 'refresh'):
     window.expand_button.click()
     assert not window.expanded
     assert '6.1' in window.subtitle.text()
-    assert 'Перевірено' in window.source.text()
-    assert 'GitHub' not in window.source.text()
-    setup = Setup('6.1')
+    assert 'Перевірено' in window.update_status_label.text()
+    assert 'GitHub' not in window.update_status_label.text()
+    setup = SetupDialog('6.1')
     setup.show()
     app.processEvents()
     setup.grab().save(str(folder / 'setup.png'))
-    assert setup.combo.currentText() == '6.1'
-    setup.combo.setCurrentText('2.2')
-    assert setup.combo.currentText() == '2.2'
+    assert setup.queue_selector.currentText() == '6.1'
+    setup.queue_selector.setCurrentText('2.2')
+    assert setup.queue_selector.currentText() == '2.2'
     from datetime import datetime
-    from core import KYIV
+    from blackout_tracker.schedule import KYIV_TIMEZONE
     from PySide6.QtCore import Qt
     from PySide6.QtTest import QTest
     QTest.qWait(300)
@@ -69,7 +71,7 @@ with patch.object(Window, 'refresh'):
     QTest.qWait(50)
     assert settled == (window.geometry(), window.main_panel.geometry())
     window.grab().save(str(folder / 'settings.png'))
-    settings.sound_choice.setCurrentIndex(settings.sound_choice.findData('siren'))
+    settings.sound_selector.setCurrentIndex(settings.sound_selector.findData('siren'))
     settings.interval.setValue(7)
     settings.topmost.setChecked(False)
     assert window.settings_open
@@ -87,17 +89,17 @@ with patch.object(Window, 'refresh'):
     assert not json.loads((folder / 'settings.json').read_text(encoding='utf-8'))['overlay_topmost']
     window.configure()
     QTest.qWait(300)
-    with patch('app.QSystemTrayIcon.isSystemTrayAvailable', return_value=True):
+    with patch('blackout_tracker.ui.main_window.QSystemTrayIcon.isSystemTrayAvailable', return_value=True):
         window.hide_to_tray()
         QTest.qWait(400)
     assert not window.isVisible()
     window.reveal()
     window.close_settings()
     QTest.qWait(300)
-    schedule = normalize_github(json.loads(Path('tests/fixtures/kyiv-region.json').read_text(encoding='utf-8')), '6.1')
-    now = datetime(2026, 11, 25, 10, 25, tzinfo=KYIV)
+    schedule = parse_schedule_response(json.loads(Path('tests/fixtures/kyiv-region.json').read_text(encoding='utf-8')), '6.1')
+    now = datetime(2026, 11, 25, 10, 25, tzinfo=KYIV_TIMEZONE)
     schedule['checked'] = now.isoformat()
-    with patch('app.datetime') as clock, patch('app.play_warning') as sound:
+    with patch('blackout_tracker.ui.main_window.datetime') as clock, patch('blackout_tracker.ui.main_window.play_warning') as sound:
         clock.now.return_value = now
         window.received(schedule)
         assert window.overlay.isVisible()

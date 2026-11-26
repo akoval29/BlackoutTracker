@@ -4,15 +4,16 @@ os.environ.setdefault('QT_QPA_PLATFORM', 'offscreen')
 from PySide6.QtCore import QPoint, Qt
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication
-from app import SettingsPanel, STYLE
-from preferences import normalize_settings
+from blackout_tracker.ui.settings_panel import SettingsPanel
+from blackout_tracker.ui.theme import APP_STYLESHEET
+from blackout_tracker.settings import normalize_settings
 
 
 class SideSelectTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.app = QApplication.instance() or QApplication([])
-        cls.app.setStyleSheet(STYLE)
+        cls.app.setStyleSheet(APP_STYLESHEET)
 
     def test_both_menus_open_left_and_apply_selection(self):
         panel = SettingsPanel(normalize_settings({}))
@@ -23,7 +24,7 @@ class SideSelectTests(unittest.TestCase):
         saved = []
         panel.saved.connect(saved.append)
         try:
-            for selector in (panel.region_choice, panel.combo, panel.position, panel.sound_choice):
+            for selector in (panel.region_selector, panel.queue_selector, panel.position, panel.sound_selector):
                 selector.showPopup()
                 QTest.qWait(400)
                 self.assertTrue(selector.menu.isVisible())
@@ -48,7 +49,7 @@ class SideSelectTests(unittest.TestCase):
         panel.move(450, 0)
         panel.show()
         self.app.processEvents()
-        selector = panel.combo
+        selector = panel.queue_selector
         try:
             QTest.mouseClick(selector, Qt.MouseButton.LeftButton)
             QTest.qWait(400)

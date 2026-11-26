@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import MagicMock, patch
-import autostart
+import blackout_tracker.windows_autostart as autostart
 
 
 class AutostartTests(unittest.TestCase):
@@ -10,10 +10,10 @@ class AutostartTests(unittest.TestCase):
 
     def test_registration_is_per_user_and_removal_only_deletes_own_value(self):
         registry = MagicMock()
-        with patch.object(autostart, 'winreg', registry), patch.object(autostart, 'startup_command', return_value='app.exe --autostart'):
+        with patch.object(autostart, 'winreg', registry), patch.object(autostart, 'startup_command', return_value='BlackoutTracker.exe --autostart'):
             autostart.set_enabled(True)
             registry.CreateKeyEx.assert_called_once_with(registry.HKEY_CURRENT_USER, autostart.RUN_KEY, 0, registry.KEY_SET_VALUE)
-            registry.SetValueEx.assert_called_once_with(registry.CreateKeyEx.return_value.__enter__.return_value, 'BlackoutTracker', 0, registry.REG_SZ, 'app.exe --autostart')
+            registry.SetValueEx.assert_called_once_with(registry.CreateKeyEx.return_value.__enter__.return_value, 'BlackoutTracker', 0, registry.REG_SZ, 'BlackoutTracker.exe --autostart')
             autostart.set_enabled(False)
             registry.DeleteValue.assert_called_once_with(registry.OpenKey.return_value.__enter__.return_value, 'BlackoutTracker')
 
@@ -41,3 +41,12 @@ class AutostartTests(unittest.TestCase):
             with self.assertRaises(OSError):
                 autostart.set_enabled(True)
             registry.CreateKeyEx.assert_not_called()
+
+    def test_source_command_uses_existing_entry_point(self):
+        from pathlib import Path
+        with patch.object(autostart.sys, 'frozen', False, create=True):
+            command = autostart.startup_command()
+            entry_point = Path(autostart.__file__).resolve().parent.parent / 'main.py'
+            self.assertTrue(entry_point.is_file())
+            self.assertIn(str(entry_point), command)
+            self.assertTrue(command.endswith('--autostart'))

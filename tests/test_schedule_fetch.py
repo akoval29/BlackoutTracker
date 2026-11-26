@@ -2,16 +2,16 @@ import json
 import unittest
 from pathlib import Path
 from unittest.mock import patch
-import core
-from preferences import normalize_settings
+import blackout_tracker.schedule as core
+from blackout_tracker.settings import normalize_settings
 
 
 class SourceTests(unittest.TestCase):
     def test_only_one_request_and_no_provider_in_warning(self):
         raw = json.loads((Path(__file__).resolve().parents[1] / 'tests/fixtures/kyiv-region.json').read_text(encoding='utf-8'))
-        with patch('core.fresh', return_value=True), patch('core.datetime') as dt, patch('core.read_json', return_value=raw) as read:
+        with patch('blackout_tracker.schedule.is_schedule_fresh', return_value=True), patch('blackout_tracker.schedule.datetime') as dt, patch('blackout_tracker.schedule.read_json', return_value=raw) as read:
             from datetime import datetime
-            dt.now.return_value = datetime(2026,11,25,tzinfo=core.KYIV)
+            dt.now.return_value = datetime(2026,11,25,tzinfo=core.KYIV_TIMEZONE)
             dt.fromtimestamp = datetime.fromtimestamp
             dt.strptime = datetime.strptime
             dt.fromisoformat = datetime.fromisoformat
@@ -20,7 +20,7 @@ class SourceTests(unittest.TestCase):
             self.assertEqual(result['warning'], '')
 
     def test_error_does_not_leak_url_and_no_fallback(self):
-        with patch('core.read_json', side_effect=OSError('https://example.invalid')) as read:
+        with patch('blackout_tracker.schedule.read_json', side_effect=OSError('https://example.invalid')) as read:
             with self.assertRaises(ValueError) as error:
                 core.fetch_schedule('6.1')
             self.assertNotIn('https', str(error.exception))

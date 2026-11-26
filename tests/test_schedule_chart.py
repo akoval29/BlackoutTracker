@@ -1,5 +1,5 @@
 import unittest
-from schedule_chart import day_segments
+from blackout_tracker.ui.schedule_chart import day_segments
 
 
 class SegmentTests(unittest.TestCase):

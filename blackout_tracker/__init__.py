@@ -1,0 +1,1 @@
+"""BlackoutTracker portable desktop application."""

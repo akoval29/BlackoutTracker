@@ -4,23 +4,24 @@ from unittest.mock import patch
 
 os.environ.setdefault('QT_QPA_PLATFORM', 'offscreen')
 from PySide6.QtWidgets import QApplication
-from app import CountdownOverlay, STYLE
+from blackout_tracker.ui.countdown_widget import CountdownWidget
+from blackout_tracker.ui.theme import APP_STYLESHEET
 
 
 class OverlayTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.app = QApplication.instance() or QApplication([])
-        cls.app.setStyleSheet(STYLE)
+        cls.app.setStyleSheet(APP_STYLESHEET)
 
     def test_animation_only_on_appearance_or_selected_position_change(self):
-        widget = CountdownOverlay()
+        widget = CountdownWidget()
         try:
             with patch.object(widget.ripple, 'start', wraps=widget.ripple.start) as start:
                 widget.present('Таймер', '01:00:00', '#5ee0af', 'top')
                 self.assertEqual(start.call_count, 1)
                 self.assertEqual(widget.timer.scale, 0)
-                widget.text_motion.setCurrentTime(210)
+                widget.text_animation.setCurrentTime(210)
                 self.assertGreater(widget.timer.scale, 0)
                 self.assertLess(widget.timer.scale, 1)
                 scale = widget.timer.scale
@@ -32,7 +33,7 @@ class OverlayTests(unittest.TestCase):
                 self.assertEqual(start.call_count, 1)
                 self.assertEqual(widget.timer.scale, scale)
                 self.assertEqual(widget.width(), width)
-                widget.text_motion.setCurrentTime(420)
+                widget.text_animation.setCurrentTime(420)
                 self.assertEqual(widget.timer.scale, 1)
                 widget.present('Таймер', '00:59:57', '#5ee0af', 'bottom-left')
                 self.assertEqual(start.call_count, 1)
@@ -44,24 +45,24 @@ class OverlayTests(unittest.TestCase):
             widget.deleteLater()
 
     def test_travel_updates_and_rapid_retarget(self):
-        widget = CountdownOverlay()
+        widget = CountdownWidget()
         try:
             widget.present('Таймер', '01:00:00', '#5ee0af', 'top-left')
             start = widget.pos()
             widget.present('Таймер', '01:00:00', '#5ee0af', 'bottom-right')
-            destination = widget.travel.endValue()
+            destination = widget.position_animation.endValue()
             self.assertEqual(widget.pos(), start)
-            widget.travel.setCurrentTime(250)
+            widget.position_animation.setCurrentTime(250)
             middle = widget.pos()
             self.assertNotEqual(middle, start)
             self.assertNotEqual(middle, destination)
             widget.present('Таймер', '00:59:59', '#5ee0af', 'bottom-right')
             self.assertEqual(widget.pos(), middle)
-            self.assertEqual(widget.travel.currentTime(), 250)
+            self.assertEqual(widget.position_animation.currentTime(), 250)
             widget.present('Таймер', '00:59:59', '#5ee0af', 'top')
-            self.assertEqual(widget.travel.startValue(), middle)
-            widget.travel.setCurrentTime(500)
-            self.assertEqual(widget.pos(), widget.travel.endValue())
+            self.assertEqual(widget.position_animation.startValue(), middle)
+            widget.position_animation.setCurrentTime(500)
+            self.assertEqual(widget.pos(), widget.position_animation.endValue())
             self.assertEqual(widget.timer.scale, 1)
         finally:
             widget.hide()
