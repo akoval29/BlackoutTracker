@@ -3,15 +3,14 @@ import json
 import unittest
 from datetime import datetime
 from pathlib import Path
-from unittest.mock import patch
-from core import KYIV, normalize_github, state_at, fresh, fetch_schedule
+from core import KYIV, normalize_github, state_at, fresh
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 class ScheduleTests(unittest.TestCase):
     def setUp(self):
-        self.raw = json.loads((ROOT / 'kyiv-region.json').read_text(encoding='utf-8'))
+        self.raw = json.loads((ROOT / 'tests/fixtures/kyiv-region.json').read_text(encoding='utf-8'))
         self.schedule = normalize_github(self.raw, '6.1')
 
     def at(self, day, hour, minute=0):
