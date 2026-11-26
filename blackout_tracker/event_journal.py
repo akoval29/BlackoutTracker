@@ -19,6 +19,17 @@ class EventJournal:
         except (OSError, ValueError, AttributeError):
             pass
 
+    def clear(self):
+        """Clear history while preserving the baseline for future changes."""
+        try:
+            save_json_atomic(self.path, {'events': [], 'snapshots': self.snapshots})
+        except OSError:
+            self.error = 'Не вдалося очистити журнал на диску. Події збережено.'
+            return False
+        self.events = []
+        self.error = ''
+        return True
+
     def observe(self, schedule, now, previous=None):
         key = schedule['region'] + '/' + schedule['group']
         baseline = self.snapshots.get(key)

@@ -8,6 +8,7 @@ from PySide6.QtCore import QPoint, Qt
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication
 from blackout_tracker.ui.main_window import MainWindow
+from blackout_tracker.settings import load_settings
 
 
 class WindowInteractionTests(unittest.TestCase):
@@ -29,16 +30,53 @@ class WindowInteractionTests(unittest.TestCase):
                 QTest.mouseClick(window.countdown, Qt.MouseButton.LeftButton)
                 self.assertTrue(window.expanded)
                 window.panel_animation.setCurrentTime(260)
-                QTest.mouseClick(window.subtitle, Qt.MouseButton.LeftButton)
+                self.assertEqual(window.expand_button.text(), 'Згорнути ↑')
+                for widget in (window.chart, window.update_status_label, window.main_panel):
+                    QTest.mouseClick(widget, Qt.MouseButton.LeftButton, pos=QPoint(1, 1))
+                    self.assertTrue(window.expanded)
+                QTest.mouseClick(window.expand_button, Qt.MouseButton.LeftButton)
                 self.assertFalse(window.expanded)
                 window.panel_animation.setCurrentTime(260)
+                self.assertEqual(window.expand_button.text(), 'Показати графік ↓')
+                QTest.mouseClick(window.expand_button, Qt.MouseButton.LeftButton)
+                self.assertTrue(window.expanded)
+                window.panel_animation.setCurrentTime(260)
+                QTest.mouseClick(window.subtitle, Qt.MouseButton.LeftButton)
+                self.assertFalse(window.expanded)
+                expanded_height = window.details.height()
+                self.assertTrue(window.details.isVisible())
+                window.panel_animation.setCurrentTime(130)
+                self.app.processEvents()
+                self.assertTrue(window.details.isVisible())
+                self.assertLess(window.details.height(), expanded_height)
+                collapsed_target = window.main_end_height
+                window.update_content_height()
+                self.assertEqual(window.main_end_height, collapsed_target)
+                # Reverse midway: content must remain visible without a flash.
+                window.toggle_expanded()
+                self.assertTrue(window.details.isVisible())
+                window.panel_animation.setCurrentTime(260)
+                window.toggle_expanded()
+                window.panel_animation.setCurrentTime(259)
+                self.app.processEvents()
+                self.assertTrue(window.details.isVisible())
+                self.assertLessEqual(window.details.height(), 1)
+                window.panel_animation.setCurrentTime(260)
+                self.assertTrue(window.details.isHidden())
+                self.assertTrue(window.overlay.isVisible())
+                self.assertEqual(window.preferences['overlay_position'], 'bottom')
                 window.widget_button.click()
+                self.assertFalse(window.overlay.isVisible())
+                self.assertFalse(load_settings(Path(directory) / 'settings.json', '6.1')['overlay_enabled'])
+                window.widget_button.click()
+                self.assertTrue(load_settings(Path(directory) / 'settings.json', '6.1')['overlay_enabled'])
                 self.assertFalse(window.expanded)
                 self.assertTrue(window.overlay.isVisible())
                 window.overlay.hide()
                 window.dismiss_overlay()
                 window.settings_panel.position.setCurrentIndex(0)
                 self.assertTrue(window.overlay.isVisible())
+                self.assertEqual(load_settings(Path(directory) / 'settings.json', '6.1')['overlay_position'], window.settings_panel.position.currentData())
                 window.overlay.hide()
                 window.dismiss_overlay()
                 window.settings_panel.position.activated.emit(0)

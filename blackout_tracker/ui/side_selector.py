@@ -1,6 +1,7 @@
 import math
-from PySide6.QtCore import QPoint, QPointF, QRect, Qt, QEvent, QPropertyAnimation, QEasingCurve
-from PySide6.QtGui import QIcon, QPixmap, QPainter, QPen, QColor
+from PySide6.QtCore import QPoint, QPointF, QRect, Qt, QEvent
+from PySide6.QtGui import QIcon, QPixmap, QPainter, QPen, QColor, QRegion
+from blackout_tracker.ui.panel_animation import create_panel_animation, arrange_reveal
 from PySide6.QtWidgets import (QApplication, QComboBox, QFrame, QWidget, QScrollArea,
     QGridLayout, QPushButton, QStylePainter, QStyleOptionComboBox, QStyle)
 
@@ -28,17 +29,22 @@ class SelectorPopup(QFrame):
     def __init__(self, selector):
         super().__init__(selector, Qt.WindowType.Tool | Qt.WindowType.FramelessWindowHint)
         self.selector = selector
-        self.setObjectName('choiceMenu')
-        self.setStyleSheet('#choiceMenu { background: #2b394c; border: 1px solid #60758f; }')
-        self.scroll = QScrollArea(self)
+        self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+        self.setObjectName('choiceCanvas')
+        self.setStyleSheet('#choiceCanvas { background: transparent; }')
+        self.clip = QFrame(self)
+        self.clip.setObjectName('choiceMenu')
+        self.clip.setStyleSheet('#choiceMenu { background: #2b394c; border: 1px solid #60758f; border-top-left-radius: 14px; }')
+        self.scroll = QScrollArea(self.clip)
         self.scroll.setFrameShape(QFrame.Shape.NoFrame)
         self.scroll.setWidgetResizable(True)
         self.buttons = []
         self.target = QRect()
         self.closing = False
-        self.panel_animation = QPropertyAnimation(self, b'geometry', self)
-        self.panel_animation.setDuration(260)
-        self.panel_animation.setEasingCurve(QEasingCurve.Type.InOutCubic)
+        self.reveal = 0.0
+        self.reveal_start = 0.0
+        self.reveal_end = 0.0
+        self.panel_animation = create_panel_animation(self, self.animate_panel)
         self.panel_animation.finished.connect(self.finished)
 
     def open_choices(self):
@@ -91,10 +97,14 @@ class SelectorPopup(QFrame):
         self.target = QRect(x, y, width, height)
         self.panel_animation.stop()
         self.closing = False
-        self.setGeometry(QRect(x + width - 1, y, 1, height))
+        self.reveal_start = self.reveal if self.isVisible() else 0.0
+        self.reveal_end = width
+        # Keep the native canvas fixed, exactly as for the main side panels.
+        self.setGeometry(self.target)
+        self.animate_panel(0.0)
         self.show()
-        self.panel_animation.setStartValue(self.geometry())
-        self.panel_animation.setEndValue(self.target)
+        self.panel_animation.setStartValue(0.0)
+        self.panel_animation.setEndValue(1.0)
         self.panel_animation.start()
 
     def choose(self, index):
@@ -110,19 +120,26 @@ class SelectorPopup(QFrame):
         if not animated:
             self.hide()
             return
-        end = QRect(self.target.right(), self.target.y(), 1, self.target.height())
-        self.panel_animation.setStartValue(self.geometry())
-        self.panel_animation.setEndValue(end)
+        self.reveal_start = self.reveal
+        self.reveal_end = 0.0
+        self.panel_animation.setStartValue(0.0)
+        self.panel_animation.setEndValue(1.0)
         self.panel_animation.start()
 
     def finished(self):
         if self.closing:
             self.hide()
 
-    def resizeEvent(self, event):
-        super().resizeEvent(event)
-        if hasattr(self, 'scroll'):
-            self.scroll.setGeometry(0, 0, max(1, self.target.width()), self.height())
+    def animate_panel(self, progress):
+        self.reveal = self.reveal_start + (self.reveal_end - self.reveal_start) * progress
+        visible = arrange_reveal(self.clip, self.scroll, self.target.width(), 0,
+                                 self.target.width(), self.target.height(), self.reveal)
+        # Exclude unrevealed space from both painting and native mouse input.
+        region = self.clip.mask().translated(self.clip.pos()) if visible else QRegion(-1, -1, 1, 1)
+        self.setMask(region)
+
+    def visible_geometry(self):
+        return QRect(self.clip.mapToGlobal(QPoint()), self.clip.size())
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key.Key_Escape:
@@ -173,7 +190,7 @@ class SideSelector(QComboBox):
             if event.type() == QEvent.Type.MouseButtonPress:
                 point = event.globalPosition().toPoint()
                 own_rect = QRect(self.mapToGlobal(QPoint()), self.size())
-                if not self.menu.geometry().contains(point) and not own_rect.contains(point):
+                if not self.menu.visible_geometry().contains(point) and not own_rect.contains(point):
                     self.menu.dismiss()
             elif event.type() in (QEvent.Type.Hide, QEvent.Type.Move, QEvent.Type.Resize):
                 if watched in (self.panel, self.panel.window(), getattr(self.panel.window(), 'main_panel', None)):

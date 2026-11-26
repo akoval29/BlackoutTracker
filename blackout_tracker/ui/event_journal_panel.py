@@ -1,8 +1,8 @@
 """Readable event cards in an independently scrollable side panel."""
 from copy import deepcopy
 from datetime import datetime
-from PySide6.QtCore import Qt, QTimer
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QFrame, QScrollArea
+from PySide6.QtCore import Qt, QTimer, Signal
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QFrame, QScrollArea, QPushButton
 from blackout_tracker.event_journal import describe_day
 from blackout_tracker.regions import REGIONS
 from blackout_tracker.schedule import KYIV_TIMEZONE
@@ -19,6 +19,8 @@ def text_label(text, style):
 
 
 class EventJournalPanel(QWidget):
+    clear_requested = Signal()
+
     def __init__(self):
         super().__init__()
         self.rendered_events = None
@@ -28,14 +30,24 @@ class EventJournalPanel(QWidget):
         layout.setSpacing(10)
         title = QLabel('Журнал подій')
         title.setStyleSheet('font-size: 20px; font-weight: 600;')
-        layout.addWidget(title)
+        header = QHBoxLayout()
+        header.setSpacing(10)
+        header.addWidget(title)
+        self.caption = QLabel('Подій: 0')
+        self.caption.setStyleSheet('color: #c0ccdc; font-size: 12px;')
+        header.addWidget(self.caption)
+        header.addStretch()
+        self.clear_button = QPushButton('Очистити журнал')
+        self.clear_button.setStyleSheet('font-size: 12px; padding: 6px 8px;')
+        self.clear_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.clear_button.setEnabled(False)
+        self.clear_button.clicked.connect(self.clear_requested.emit)
+        header.addWidget(self.clear_button)
+        layout.addLayout(header)
         line = QFrame()
         line.setFixedHeight(1)
         line.setStyleSheet(GRADIENT_DIVIDER_STYLE)
         layout.addWidget(line)
-        self.caption = QLabel()
-        self.caption.setStyleSheet('color: #c0ccdc; font-size: 12px;')
-        layout.addWidget(self.caption)
         self.error = QLabel()
         self.error.setWordWrap(True)
         self.error.setStyleSheet('color: #f6ad55; font-size: 12px;')
@@ -65,7 +77,8 @@ class EventJournalPanel(QWidget):
         scrollbar = self.history.verticalScrollBar()
         old_value, old_maximum = scrollbar.value(), scrollbar.maximum()
         self.rendered_events = deepcopy(journal.events)
-        self.caption.setText(f'Подій: {len(journal.events)} · Найновіші зверху')
+        self.caption.setText(f'Подій: {len(journal.events)}')
+        self.clear_button.setEnabled(bool(journal.events))
         while self.cards.count():
             widget = self.cards.takeAt(0).widget()
             if widget:

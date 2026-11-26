@@ -1,7 +1,7 @@
 import os
 import unittest
 os.environ.setdefault('QT_QPA_PLATFORM', 'offscreen')
-from PySide6.QtCore import QPoint, Qt
+from PySide6.QtCore import QPoint, QRect, Qt
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication
 from blackout_tracker.ui.settings_panel import SettingsPanel
@@ -92,6 +92,39 @@ class SideSelectTests(unittest.TestCase):
             selector.menu.buttons[4].click()
             self.assertEqual(panel.values()['overlay_position'], 'bottom')
             self.assertEqual(normalize_settings(panel.values())['overlay_position'], 'bottom')
+        finally:
+            panel.close()
+            panel.deleteLater()
+
+    def test_reveal_keeps_native_canvas_and_content_size_fixed(self):
+        panel = SettingsPanel(normalize_settings({}))
+        panel.resize(360, 530)
+        panel.move(450, 0)
+        panel.show()
+        self.app.processEvents()
+        try:
+            for selector in (panel.region_selector, panel.queue_selector, panel.position):
+                selector.showPopup()
+                menu = selector.menu
+                canvas = QRect(menu.target)
+                menu.panel_animation.pause()
+                for time in (65, 130, 195, 260):
+                    menu.panel_animation.setCurrentTime(time)
+                    fraction = menu.panel_animation.easingCurve().valueForProgress(time / 260)
+                    width = round(canvas.width() * fraction)
+                    self.assertEqual(menu.geometry(), canvas)
+                    self.assertEqual(menu.scroll.size(), canvas.size())
+                    self.assertEqual(menu.clip.width(), width)
+                    self.assertEqual(menu.clip.x(), canvas.width() - width)
+                    self.assertEqual(menu.scroll.pos(), QPoint())
+                menu.dismiss()
+                menu.panel_animation.pause()
+                menu.panel_animation.setCurrentTime(130)
+                halfway = menu.reveal
+                self.assertEqual(menu.geometry(), canvas)
+                selector.showPopup()
+                self.assertEqual(menu.reveal, halfway)
+                menu.dismiss(animated=False)
         finally:
             panel.close()
             panel.deleteLater()

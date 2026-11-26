@@ -2,6 +2,7 @@ import unittest
 import tempfile
 from pathlib import Path
 from datetime import datetime
+from unittest.mock import patch
 from blackout_tracker.event_journal import EventJournal
 from blackout_tracker.schedule import KYIV_TIMEZONE
 
@@ -46,3 +47,18 @@ class EventJournalTests(unittest.TestCase):
     def test_existing_cache_is_baseline(self):
         events = self.journal.observe(self.schedule(end=660), self.now, self.schedule())
         self.assertEqual(len(events), 1)
+
+    def test_clear_persists_and_keeps_change_detection_baseline(self):
+        self.journal.observe(self.schedule('emergency'), self.now)
+        self.assertTrue(self.journal.clear())
+        restarted = EventJournal(self.path)
+        self.assertEqual(restarted.events, [])
+        self.assertEqual(restarted.observe(self.schedule('emergency'), self.now), [])
+        self.assertEqual(restarted.observe(self.schedule(), self.now)[0]['title'], 'Повернення до планового графіка')
+
+    def test_clear_failure_preserves_events(self):
+        self.journal.observe(self.schedule('emergency'), self.now)
+        with patch('blackout_tracker.event_journal.save_json_atomic', side_effect=OSError):
+            self.assertFalse(self.journal.clear())
+        self.assertEqual(len(self.journal.events), 1)
+        self.assertTrue(self.journal.error)

@@ -1,5 +1,5 @@
 from PySide6.QtCore import Qt, Signal, QPoint, QPropertyAnimation, QVariantAnimation, QEasingCurve
-from PySide6.QtGui import QColor, QPainter
+from PySide6.QtGui import QColor, QLinearGradient, QPainter
 from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QLabel
 from blackout_tracker.ui.ripple_animation import RippleAnimation
 
@@ -28,6 +28,8 @@ class AnimatedTimerLabel(QLabel):
 
 class CountdownWidget(QWidget):
     dismissed = Signal()
+    SIDE_WIDTH = 20
+    TEXT_PADDING = 6
 
     def __init__(self):
         super().__init__()
@@ -38,10 +40,10 @@ class CountdownWidget(QWidget):
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         self.setFixedSize(90, 23)
-        self.setStyleSheet('CountdownOverlay { background: transparent; border: none; }')
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(1, 1, 1, 1)
-        self.timer = AnimatedTimerLabel('—')
+        inset = self.SIDE_WIDTH + self.TEXT_PADDING
+        layout.setContentsMargins(inset, 1, inset, 1)
+        self.timer = AnimatedTimerLabel('∞')
         self.timer.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.timer.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
         layout.addWidget(self.timer)
@@ -57,6 +59,23 @@ class CountdownWidget(QWidget):
         self.text_animation.setEasingCurve(QEasingCurve.Type.OutCubic)
         self.text_animation.valueChanged.connect(self.animate_text)
 
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        dark = QColor(0, 0, 0, 128)
+        transparent = QColor(0, 0, 0, 0)
+        side = self.SIDE_WIDTH
+        painter.fillRect(side, 0, self.width() - 2 * side, self.height(), dark)
+        left = QLinearGradient(0, 0, side, 0)
+        left.setColorAt(0, transparent)
+        left.setColorAt(1, dark)
+        painter.fillRect(0, 0, side, self.height(), left)
+        right_start = self.width() - side
+        right = QLinearGradient(right_start, 0, self.width(), 0)
+        right.setColorAt(0, dark)
+        right.setColorAt(1, transparent)
+        painter.fillRect(right_start, 0, side, self.height(), right)
+        painter.end()
+
     def animate_text(self, scale):
         self.timer.scale = scale
         self.timer.update()
@@ -67,13 +86,14 @@ class CountdownWidget(QWidget):
         self.last_position = position
         self.timer.setText(countdown)
         self.timer.ink = QColor(color)
-        self.timer.setStyleSheet(f'font-size: 15px; font-weight: 650; color: {color};')
+        font_size = 24 if countdown == '∞' else 15
+        self.timer.setStyleSheet(f'font-size: {font_size}px; font-weight: 650; color: {color};')
         self.timer.ensurePolished()
         metrics = self.timer.fontMetrics()
         # Reserve equal digit widths so ticking cannot move or resize the timer.
         digit_width = max(metrics.horizontalAdvance(str(digit)) for digit in range(10))
         width = digit_width * max(6, len(countdown.replace(':', ''))) + metrics.horizontalAdvance('::')
-        self.setFixedSize(width + 2, metrics.height() + 2)
+        self.setFixedSize(width + 2 * (self.SIDE_WIDTH + self.TEXT_PADDING), metrics.height() + 2)
         self.setAccessibleName(f'{label}: {countdown}')
         screen = QApplication.primaryScreen()
         if screen:
