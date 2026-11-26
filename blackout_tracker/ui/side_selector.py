@@ -14,7 +14,7 @@ def direction_icon(position):
     image.fill(Qt.GlobalColor.transparent)
     painter = QPainter(image)
     painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-    painter.setPen(QPen(QColor('#e9eff9'), 1.5))
+    painter.setPen(QPen(QColor('#f2f6fc'), 1.5))
     tip = QPointF(8 + dx * 6, 8 + dy * 6)
     painter.drawLine(QPointF(8 - dx * 5, 8 - dy * 5), tip)
     for side in (-1, 1):
@@ -29,7 +29,7 @@ class SelectorPopup(QFrame):
         super().__init__(selector, Qt.WindowType.Tool | Qt.WindowType.FramelessWindowHint)
         self.selector = selector
         self.setObjectName('choiceMenu')
-        self.setStyleSheet('#choiceMenu { background: #182536; border: 1px solid #3b4e67; }')
+        self.setStyleSheet('#choiceMenu { background: #2b394c; border: 1px solid #60758f; }')
         self.scroll = QScrollArea(self)
         self.scroll.setFrameShape(QFrame.Shape.NoFrame)
         self.scroll.setWidgetResizable(True)
@@ -53,7 +53,7 @@ class SelectorPopup(QFrame):
         columns = max(1, math.ceil(selector.count() / rows))
         cell_width = max(76, max((selector.fontMetrics().horizontalAdvance(selector.itemText(i))
                                   for i in range(selector.count())), default=80) + (48 if getattr(selector, "menu_columns", None) else 28))
-        edge = panel.mapToGlobal(QPoint()).x() - 4
+        edge = panel.mapToGlobal(QPoint()).x()
         available_width = max(1, edge - area.left())
         columns = min(columns, max(1, available_width // cell_width))
         if getattr(selector, 'menu_columns', None):

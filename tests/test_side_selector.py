@@ -24,7 +24,7 @@ class SideSelectTests(unittest.TestCase):
         saved = []
         panel.saved.connect(saved.append)
         try:
-            for selector in (panel.region_selector, panel.queue_selector, panel.position, panel.sound_selector):
+            for selector in (panel.region_selector, panel.queue_selector, panel.position):
                 selector.showPopup()
                 QTest.qWait(400)
                 self.assertTrue(selector.menu.isVisible())

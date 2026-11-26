@@ -1,6 +1,8 @@
+from blackout_tracker.ui.theme import GRADIENT_DIVIDER_STYLE
 import sys
-from PySide6.QtCore import Signal
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QFrame, QCheckBox, QSpinBox, QSizePolicy
+from PySide6.QtCore import Signal, Qt, QSize
+from PySide6.QtGui import QIcon, QPixmap, QPainter, QPen, QColor
+from PySide6.QtWidgets import QWidget, QGridLayout, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QFrame, QCheckBox, QSpinBox, QSizePolicy
 import blackout_tracker.windows_autostart as autostart
 from blackout_tracker.ui.side_selector import SideSelector
 from blackout_tracker.regions import DEFAULT_REGION, REGIONS, groups_for, valid_group
@@ -20,17 +22,34 @@ class SettingsPanel(QWidget):
         title = QLabel('Налаштування')
         title.setStyleSheet('font-size: 20px; font-weight: 600;')
         layout.addWidget(title)
+        line = QFrame()
+        line.setFixedHeight(1)
+        line.setStyleSheet(GRADIENT_DIVIDER_STYLE)
+        layout.addWidget(line)
+        self.root_layout = layout
+        self.columns = QGridLayout()
+        self.columns.setHorizontalSpacing(14)
+        self.columns.setVerticalSpacing(14)
+        self.section_cards = {}
+        self.wide_columns = None
+        self.root_layout.addLayout(self.columns)
 
-        def section(name):
-            line = QFrame()
-            line.setFixedHeight(1)
-            line.setStyleSheet('background: #3b4e67;')
-            layout.addWidget(line)
+        def section(name, order):
+            card = QFrame()
+            card.setObjectName('settingsSection')
+            card.setStyleSheet('#settingsSection { background: #304158; border: 1px solid #4a607c; border-radius: 10px; }')
+            body = QVBoxLayout(card)
+            body.setContentsMargins(12, 12, 12, 12)
+            body.setSpacing(10)
+            body.setAlignment(Qt.AlignmentFlag.AlignTop)
             label = QLabel(name)
-            label.setStyleSheet('color: #a6b6cd; font-size: 12px;')
-            layout.addWidget(label)
+            label.setStyleSheet('color: #e4edf9; font-size: 14px; font-weight: 600;')
+            body.addWidget(label)
+            self.section_cards[order] = card
+            self.columns.addWidget(card, order, 0)
+            return body
 
-        section('Графік')
+        layout = section('Графік відключень', 0)
         self.region_selector = SideSelector('Регіон', self)
         for key, title in REGIONS.items():
             self.region_selector.addItem(title, key)
@@ -40,24 +59,42 @@ class SettingsPanel(QWidget):
         self.queue_selector = SideSelector('Черга', self)
         self.queue_selector.addItems(groups_for(DEFAULT_REGION))
         self.queue_selector.setAccessibleName('Черга')
-        self.queue_selector.setFixedWidth(106)
+        self.queue_selector.setFixedWidth(90)
         selection_row = QHBoxLayout()
         selection_row.setSpacing(6)
         selection_row.addWidget(self.region_selector, 1)
         selection_row.addWidget(self.queue_selector)
         layout.addLayout(selection_row)
         row = QHBoxLayout()
-        row.addWidget(QLabel('Оновлювати кожні:'))
+        row.setSpacing(4)
+        refresh_label = QLabel('Оновлювати графік кожні')
+        refresh_label.setStyleSheet('font-size: 12px;')
+        row.addWidget(refresh_label)
         self.interval = QSpinBox()
         self.interval.setRange(1, 30)
+        self.interval.setToolTip('Інтервал у хвилинах: введіть число або змініть стрілками клавіатури.')
         self.interval.setSuffix(' хв')
         self.interval.setKeyboardTracking(False)
+        self.interval.setFixedWidth(52)
+        self.interval.setStyleSheet('font-size: 12px;')
         row.addWidget(self.interval)
+        self.refresh_button = QPushButton('Зараз')
+        self.refresh_button.setFixedWidth(88)
+        checkmark = QPixmap(16, 16)
+        checkmark.fill(Qt.GlobalColor.transparent)
+        painter = QPainter(checkmark)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        painter.setPen(QPen(QColor('#5ee0af'), 2.4, Qt.PenStyle.SolidLine, Qt.PenCapStyle.RoundCap))
+        painter.drawLine(3, 8, 6, 11)
+        painter.drawLine(6, 11, 13, 4)
+        painter.end()
+        self.refresh_success_icon = QIcon(checkmark)
+        self.refresh_button.setIconSize(QSize(16, 16))
+        self.set_refresh_status('idle')
+        row.addWidget(self.refresh_button)
         layout.addLayout(row)
-        self.refresh_button = QPushButton('Оновити графік відключень')
-        layout.addWidget(self.refresh_button)
 
-        section('Віджет')
+        layout = section('Віджет', 2)
         self.topmost = QCheckBox('Показувати віджет поверх усіх вікон')
         layout.addWidget(self.topmost)
         self.position = SideSelector('Розташування віджета', self)
@@ -67,25 +104,28 @@ class SettingsPanel(QWidget):
             self.position.addItem(title, key)
         layout.addWidget(self.position)
         self.position.activated.connect(lambda _: self.position_requested.emit())
+        widget_hint = QLabel('Автоматично з’являється за 5 хвилин. Клік на таймері приховує його.')
+        widget_hint.setWordWrap(True)
+        widget_hint.setStyleSheet('color: #c0ccdc; font-size: 12px;')
+        layout.addWidget(widget_hint)
 
-        section('Сповіщення та звук')
-        self.sound = QCheckBox('Звук за 5 хвилин до відключення')
-        layout.addWidget(self.sound)
-        self.sound_selector = SideSelector('Звук', self)
-        for name, key in [('Три короткі тони', 'warning'), ('Дзвінок', 'bell'), ('Сирена', 'siren')]:
-            self.sound_selector.addItem(name, key)
-        self.sound_selector.setAccessibleName('Звук попередження')
-        sound_row = QHBoxLayout()
-        sound_row.addWidget(self.sound_selector, 1)
-        preview = QPushButton('Прослухати')
-        preview.clicked.connect(lambda: play_warning(self.sound_selector.currentData()))
-        sound_row.addWidget(preview)
-        layout.addLayout(sound_row)
-        hint = QLabel('Віджет з’являється за 5 хвилин до відключення. Клік приховує його до наступної події.')
+        layout = section('Звукові попередження', 1)
+        self.notify_10 = QCheckBox('За 10 хвилин')
+        self.notify_5 = QCheckBox('За 5 хвилин')
+        for checkbox, minutes in ((self.notify_10, 10), (self.notify_5, 5)):
+            sound_row = QHBoxLayout()
+            sound_row.addWidget(checkbox, 1)
+            preview = QPushButton('Прослухати')
+            preview.setStyleSheet('font-size: 12px; padding: 7px;')
+            preview.setFixedWidth(96)
+            preview.clicked.connect(lambda checked=False, value=minutes: play_warning(value))
+            sound_row.addWidget(preview)
+            layout.addLayout(sound_row)
+        hint = QLabel('Сирена → голосове повідомлення. Оберіть один або обидва інтервали. Жодного — без звуку.')
         hint.setWordWrap(True)
-        hint.setStyleSheet('color: #a6b6cd; font-size: 12px;')
+        hint.setStyleSheet('color: #c0ccdc; font-size: 12px;')
         layout.addWidget(hint)
-        section('Запуск програми')
+        layout = section('Запуск програми', 3)
         self.autostart = QCheckBox('Запускати разом із Windows')
         self.autostart.setToolTip('Після входу у Windows — одразу в трей. Після переміщення папки увімкніть опцію повторно. Якщо Windows вимкнула автозапуск, перевірте Диспетчер завдань.')
         layout.addWidget(self.autostart)
@@ -95,6 +135,11 @@ class SettingsPanel(QWidget):
         self.autostart_error.hide()
         layout.addWidget(self.autostart_error)
         self.autostart.toggled.connect(self.change_autostart)
+        startup_hint = QLabel('Після входу у Windows програма працюватиме в треї.')
+        startup_hint.setWordWrap(True)
+        startup_hint.setStyleSheet('color: #c0ccdc; font-size: 12px;')
+        layout.addWidget(startup_hint)
+        layout = self.root_layout
         self.error = QLabel()
         self.error.setWordWrap(True)
         self.error.setStyleSheet('color: #f6ad55;')
@@ -104,8 +149,36 @@ class SettingsPanel(QWidget):
         self.load(preferences)
         self.region_selector.currentIndexChanged.connect(self.region_changed)
         for signal in (self.queue_selector.currentTextChanged, self.interval.valueChanged,
-                       self.position.currentIndexChanged, self.topmost.toggled, self.sound.toggled, self.sound_selector.currentIndexChanged):
+                       self.position.currentIndexChanged, self.topmost.toggled, self.notify_5.toggled, self.notify_10.toggled):
             signal.connect(self.changed)
+
+    def configure_columns(self, width):
+        wide = width >= 680
+        if wide == self.wide_columns:
+            return
+        self.wide_columns = wide
+        for order, card in self.section_cards.items():
+            self.columns.removeWidget(card)
+            self.columns.addWidget(card, order // 2 if wide else order, order % 2 if wide else 0)
+        self.columns.setColumnStretch(0, 1)
+        self.columns.setColumnStretch(1, 1 if wide else 0)
+        self.root_layout.invalidate()
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self.configure_columns(event.size().width())
+
+    def set_refresh_status(self, status):
+        text, color = {
+            'idle': ('Зараз', '#f2f6fc'),
+            'loading': ('Оновлення…', '#c0ccdc'),
+            'success': ('Оновлено', '#5ee0af'),
+            'error': ('Помилка', '#f87171'),
+        }[status]
+        self.refresh_button.setText(text)
+        self.refresh_button.setIcon(self.refresh_success_icon if status == 'success' else QIcon())
+        self.refresh_button.setStyleSheet(f'font-size: 12px; padding: 9px 4px; color: {color};')
+        self.refresh_button.setToolTip('Оновити графік зараз')
 
     def refresh_autostart(self):
         self.autostart.blockSignals(True)
@@ -161,8 +234,8 @@ class SettingsPanel(QWidget):
             self.topmost.setChecked(preferences['overlay_topmost'])
             self.position.setCurrentIndex(self.position.findData(preferences['overlay_position']))
             self.interval.setValue(preferences['refresh_minutes'])
-            self.sound.setChecked(preferences['sound_enabled'])
-            self.sound_selector.setCurrentIndex(self.sound_selector.findData(preferences['sound_name']))
+            self.notify_5.setChecked(preferences['notify_5_minutes'])
+            self.notify_10.setChecked(preferences['notify_10_minutes'])
             self.error.clear()
             self.error.hide()
         finally:
@@ -170,6 +243,6 @@ class SettingsPanel(QWidget):
 
     def values(self):
         return {'region': self.region_selector.currentData(), 'group': self.queue_selector.currentText(), 'overlay_topmost': self.topmost.isChecked(),
-                'refresh_minutes': self.interval.value(), 'sound_enabled': self.sound.isChecked(),
-                'sound_name': self.sound_selector.currentData(), 'overlay_position': self.position.currentData()}
+                'refresh_minutes': self.interval.value(), 'notify_5_minutes': self.notify_5.isChecked(),
+                'notify_10_minutes': self.notify_10.isChecked(), 'overlay_position': self.position.currentData()}
 

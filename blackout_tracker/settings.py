@@ -2,7 +2,7 @@
 import json
 from blackout_tracker.regions import DEFAULT_REGION, REGIONS, valid_group
 
-DEFAULTS = {'region': DEFAULT_REGION, 'group': '6.1', 'overlay_topmost': True, 'overlay_position': 'top-right', 'refresh_minutes': 15, 'sound_enabled': True, 'sound_name': 'warning'}
+DEFAULTS = {'region': DEFAULT_REGION, 'group': '6.1', 'overlay_topmost': True, 'overlay_position': 'top-right', 'refresh_minutes': 15, 'notify_5_minutes': True, 'notify_10_minutes': False}
 
 
 def normalize_settings(value, group='6.1'):
@@ -12,11 +12,11 @@ def normalize_settings(value, group='6.1'):
     if value.get('region') in REGIONS:
         result['region'] = value['region']
     result['group'] = valid_group(result['region'], group)
-    for key in ('overlay_topmost', 'sound_enabled'):
+    for key in ('overlay_topmost', 'notify_5_minutes', 'notify_10_minutes'):
         if type(value.get(key)) is bool:
             result[key] = value[key]
-    if value.get('sound_name') in ('warning', 'bell', 'siren'):
-        result['sound_name'] = value['sound_name']
+    if 'notify_5_minutes' not in value and type(value.get('sound_enabled')) is bool:
+        result['notify_5_minutes'] = value['sound_enabled']
     if value.get('overlay_position') in ('top', 'top-right', 'top-left', 'bottom-right', 'bottom-left', 'bottom'):
         result['overlay_position'] = value['overlay_position']
     interval = value.get('refresh_minutes')

@@ -5,8 +5,8 @@ import blackout_tracker.windows_autostart as autostart
 
 class AutostartTests(unittest.TestCase):
     def test_frozen_command_quotes_path_and_starts_in_tray(self):
-        with patch.object(autostart.sys, 'frozen', True, create=True), patch.object(autostart.sys, 'executable', r'C:\Моя програма\BlackoutTracker.exe'):
-            self.assertEqual(autostart.startup_command(), '"C:\\Моя програма\\BlackoutTracker.exe" --autostart')
+        with patch.object(autostart.sys, 'frozen', True, create=True), patch.object(autostart.sys, 'executable', r'C:\Моя програма\Blackout tracker.exe'):
+            self.assertEqual(autostart.startup_command(), '"C:\\Моя програма\\Blackout tracker.exe" --autostart')
 
     def test_registration_is_per_user_and_removal_only_deletes_own_value(self):
         registry = MagicMock()
@@ -50,3 +50,30 @@ class AutostartTests(unittest.TestCase):
             self.assertTrue(entry_point.is_file())
             self.assertIn(str(entry_point), command)
             self.assertTrue(command.endswith('--autostart'))
+
+    def test_rename_migrates_only_existing_same_directory_registration(self):
+        registry = MagicMock()
+        registry.REG_SZ = 1
+        registry.KEY_QUERY_VALUE = 1
+        registry.KEY_SET_VALUE = 2
+        old = '"C:\\Моя програма\\BlackoutTracker.exe" --autostart'
+        new = '"C:\\Моя програма\\Blackout tracker.exe" --autostart'
+        with patch.object(autostart, 'winreg', registry), patch.object(autostart.sys, 'frozen', True, create=True), patch.object(autostart.sys, 'executable', r'C:\Моя програма\Blackout tracker.exe'):
+            registry.QueryValueEx.return_value = (old, registry.REG_SZ)
+            self.assertTrue(autostart.migrate_renamed_executable())
+            registry.SetValueEx.assert_called_once_with(registry.OpenKey.return_value.__enter__.return_value, autostart.VALUE_NAME, 0, registry.REG_SZ, new)
+            for command in (new, r'C:\Other\BlackoutTracker.exe --autostart', old + ' --extra'):
+                registry.SetValueEx.reset_mock()
+                registry.QueryValueEx.return_value = (command, registry.REG_SZ)
+                self.assertFalse(autostart.migrate_renamed_executable())
+                registry.SetValueEx.assert_not_called()
+            registry.QueryValueEx.side_effect = FileNotFoundError
+            self.assertFalse(autostart.migrate_renamed_executable())
+            registry.SetValueEx.assert_not_called()
+            registry.CreateKeyEx.assert_not_called()
+
+    def test_source_run_never_migrates_registry(self):
+        registry = MagicMock()
+        with patch.object(autostart, 'winreg', registry), patch.object(autostart.sys, 'frozen', False, create=True):
+            self.assertFalse(autostart.migrate_renamed_executable())
+            registry.OpenKey.assert_not_called()

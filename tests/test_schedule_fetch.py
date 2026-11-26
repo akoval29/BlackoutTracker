@@ -26,6 +26,10 @@ class SourceTests(unittest.TestCase):
             self.assertNotIn('https', str(error.exception))
             self.assertEqual(read.call_count, 1)
 
-    def test_sound_allowlist(self):
-        self.assertEqual(normalize_settings({'sound_name':'siren'})['sound_name'], 'siren')
-        self.assertEqual(normalize_settings({'sound_name':'../file'})['sound_name'], 'warning')
+    def test_notification_options_validate_booleans(self):
+        values = normalize_settings({'notify_5_minutes': False, 'notify_10_minutes': True})
+        self.assertFalse(values['notify_5_minutes'])
+        self.assertTrue(values['notify_10_minutes'])
+        values = normalize_settings({'notify_5_minutes': 'no', 'notify_10_minutes': 1})
+        self.assertTrue(values['notify_5_minutes'])
+        self.assertFalse(values['notify_10_minutes'])

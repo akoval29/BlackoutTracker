@@ -1,7 +1,11 @@
+from PySide6.QtGui import QPainterPath, QRegion
+from blackout_tracker.event_journal import EventJournal
+from blackout_tracker.ui.event_journal_panel import EventJournalPanel
+from blackout_tracker.ui.event_toast import EventToast
 import json
 from datetime import datetime
 from PySide6.QtCore import Qt, QTimer, QRect, QPoint, QEvent, QVariantAnimation, QEasingCurve
-from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QComboBox, QSystemTrayIcon, QMenu, QFrame, QScrollArea, QSizePolicy, QLayout, QAbstractButton, QAbstractSlider, QAbstractSpinBox
+from PySide6.QtWidgets import QStackedWidget, QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QComboBox, QSystemTrayIcon, QMenu, QFrame, QScrollArea, QSizePolicy, QLayout, QAbstractButton, QAbstractSlider, QAbstractSpinBox
 from blackout_tracker.settings import load_settings
 from blackout_tracker.notifications import AlertState
 from blackout_tracker.ui.schedule_chart import ScheduleChart
@@ -24,6 +28,8 @@ class MainWindow(QMainWindow):
         self.preferences = load_settings(folder / 'settings.json', group)
         self.region = self.preferences['region']
         self.group = self.preferences['group']
+        self.event_journal = EventJournal(folder / 'events.json')
+        self.event_toast = EventToast(self)
         self.alerts = AlertState()
         self.overlay = CountdownWidget()
         self.overlay.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint, self.preferences['overlay_topmost'])
@@ -38,6 +44,7 @@ class MainWindow(QMainWindow):
         self.setWindowIcon(load_app_icon())
         self.expanded = False
         self.settings_open = False
+        self.pending_drawer_page = None
         self.drawer_width = 360
         self.panel_height = 240.0
         self.drawer_reveal = 0.0
@@ -45,6 +52,7 @@ class MainWindow(QMainWindow):
         self.panel_animation.setDuration(260)
         self.panel_animation.valueChanged.connect(self.animate_panels)
         self.panel_animation.finished.connect(self.finish_tray_animation)
+        self.panel_animation.finished.connect(self.finish_drawer_switch)
         self.panel_animation.setEasingCurve(QEasingCurve.Type.InOutCubic)
         self.setWindowFlags(Qt.WindowType.Tool | Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
@@ -54,17 +62,30 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.container)
         self.main_panel = root = QWidget(self.container)
         root.setObjectName('mainPanel')
-        root.setStyleSheet('#mainPanel { background: #101722; }')
+        root.setStyleSheet('#mainPanel { background: #202b3b; border-top-left-radius: 14px; }')
+        self.main_corner_rounded = True
         self.drawer_clip = QWidget(self.container)
         self.drawer_clip.setObjectName('drawerClip')
         self.drawer_clip.setStyleSheet('#drawerClip { background: transparent; }')
-        self.drawer = QScrollArea(self.drawer_clip)
-        self.drawer.setWidgetResizable(True)
-        self.drawer.setFrameShape(QFrame.Shape.NoFrame)
         self.settings_panel = SettingsPanel(self.preferences)
         self.settings_panel.setObjectName('settingsPanel')
-        self.settings_panel.setStyleSheet('#settingsPanel { background: #182536; }')
-        self.drawer.setWidget(self.settings_panel)
+        self.settings_panel.setStyleSheet('#settingsPanel { background: #2b394c; } QCheckBox { background: transparent; }')
+        self.drawer_pages = QStackedWidget(self.drawer_clip)
+        self.drawer_pages.layout().setSizeConstraint(QLayout.SizeConstraint.SetNoConstraint)
+        self.settings_scroll = QScrollArea()
+        self.settings_scroll.setWidgetResizable(True)
+        self.settings_scroll.setFrameShape(QFrame.Shape.NoFrame)
+        self.settings_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.settings_scroll.setWidget(self.settings_panel)
+        self.journal_panel = EventJournalPanel()
+        self.journal_panel.setObjectName('journalPanel')
+        self.journal_panel.setStyleSheet('#journalPanel { background: #2b394c; }')
+        self.drawer_pages.setObjectName('drawerPages')
+        self.drawer_pages.setStyleSheet('#drawerPages { background: #2b394c; }')
+        self.settings_scroll.viewport().setObjectName('drawerViewport')
+        self.settings_scroll.viewport().setStyleSheet('#drawerViewport { background: #2b394c; }')
+        self.drawer_pages.addWidget(self.settings_scroll)
+        self.drawer_pages.addWidget(self.journal_panel)
         self.settings_panel.saved.connect(self.apply_settings)
         self.settings_panel.position_requested.connect(self.show_overlay)
         self.drawer_clip.hide()
@@ -112,7 +133,7 @@ class MainWindow(QMainWindow):
         cardlayout.addWidget(self.subtitle)
         divider = QFrame()
         divider.setFixedHeight(1)
-        divider.setStyleSheet('background: #3b4e67; border: none;')
+        divider.setStyleSheet('background: #60758f; border: none;')
         cardlayout.addWidget(divider)
         self.status = QLabel()
         self.status.setWordWrap(True)
@@ -149,6 +170,9 @@ class MainWindow(QMainWindow):
         self.settings = QPushButton('Налаштування')
         self.settings.clicked.connect(self.configure)
         row.addWidget(self.settings)
+        self.journal_button = QPushButton('Журнал подій')
+        self.journal_button.clicked.connect(self.show_journal)
+        row.addWidget(self.journal_button)
         details_layout.addLayout(row)
         footer = QLabel('Час за Києвом · План, не фактичний стан мережі')
         footer.setWordWrap(True)
@@ -163,6 +187,7 @@ class MainWindow(QMainWindow):
         menu.addAction('Відкрити графік', self.reveal)
         menu.addAction('Оновити', self.refresh)
         menu.addAction('Налаштування', self.configure)
+        menu.addAction('Журнал подій', self.show_journal)
         menu.addSeparator()
         menu.addAction('Вийти', self.quit_app)
         self.tray.setContextMenu(menu)
@@ -199,16 +224,18 @@ class MainWindow(QMainWindow):
             return
         area = screen.availableGeometry()
         base = min(420, area.width())
-        self.drawer_width = min(360, max(0, area.width() - base))
+        maximum_drawer_width = min(700, max(0, area.width() - base))
+        self.drawer_width = maximum_drawer_width
+        self.settings_panel.configure_columns(self.drawer_width)
         # Keep the native translucent canvas fixed: only child widgets animate.
         # This avoids Windows resize/compositor jitter and an end-of-motion snap.
-        width = base + self.drawer_width
-        height = min(620, area.height())
+        width = base + maximum_drawer_width
+        height = area.height()
         self.panel_animation.stop()
         self.setGeometry(QRect(area.right() - width + 1,
                                area.bottom() - height + 1, width, height))
         self.main_start_height = self.panel_height
-        self.main_end_height = min(530 if self.expanded else 240, height)
+        self.main_end_height = min(self.content_height(base), height)
         self.drawer_start = self.drawer_reveal
         self.drawer_end = self.drawer_width if self.settings_open else 0
         if animate and self.isVisible():
@@ -217,6 +244,52 @@ class MainWindow(QMainWindow):
             self.panel_animation.start()
         else:
             self.animate_panels(1.0)
+
+    @staticmethod
+    def layout_content_height(layout, width, replacements=None):
+        """Measure natural content without scroll-area default size hints."""
+        replacements = replacements or {}
+        margins = layout.contentsMargins()
+        inner_width = max(1, width - margins.left() - margins.right())
+        heights = []
+        for index in range(layout.count()):
+            item = layout.itemAt(index)
+            widget = item.widget()
+            if item.spacerItem() or (widget is not None and widget.isHidden()):
+                continue
+            if widget in replacements:
+                height = replacements[widget]
+            elif item.hasHeightForWidth():
+                height = item.heightForWidth(inner_width)
+            else:
+                height = item.sizeHint().height()
+            heights.append(max(0, height))
+        return margins.top() + margins.bottom() + sum(heights) + max(0, len(heights) - 1) * layout.spacing()
+
+    def content_height(self, width):
+        details_width = max(1, width - 28)
+        details_height = self.layout_content_height(self.details.widget().layout(), details_width)
+        desired = self.layout_content_height(self.main_panel.layout(), width,
+                                             {self.details: details_height})
+        if self.settings_open:
+            page = self.drawer_pages.currentWidget()
+            if page == self.settings_scroll:
+                side_height = self.layout_content_height(self.settings_panel.layout(), self.drawer_width)
+            else:
+                history_height = self.layout_content_height(page.cards, max(1, self.drawer_width - 28))
+                side_height = self.layout_content_height(page.layout(), self.drawer_width,
+                                                        {page.history: history_height})
+                # Long histories scroll inside the journal instead of growing the shell.
+                side_height = min(side_height, 500)
+            desired = max(desired, side_height)
+        return max(120, desired)
+
+    def update_content_height(self):
+        if not hasattr(self, 'main_end_height') or self.hiding_to_tray or self.quitting:
+            return
+        desired = min(self.content_height(min(420, self.width())), self.height())
+        if abs(desired - self.main_end_height) > 1:
+            self.anchor(animate=True)
 
     def animate_panels(self, progress):
         self.panel_height = self.main_start_height + (self.main_end_height - self.main_start_height) * progress
@@ -236,7 +309,24 @@ class MainWindow(QMainWindow):
                                      visible, drawer_height)
         # Reveal the left edge first, as if the drawer were moving from under
         # the main panel. Its layout remains full-sized throughout the motion.
-        self.drawer.setGeometry(0, 0, self.drawer_width, drawer_height)
+        self.drawer_pages.setGeometry(0, 0, self.drawer_width, drawer_height)
+        # Clip the whole drawer, including its scrolling content, at the outer corner.
+        radius = min(14, visible, drawer_height)
+        corner = QPainterPath()
+        corner.moveTo(radius, 0)
+        corner.lineTo(visible, 0)
+        corner.lineTo(visible, drawer_height)
+        corner.lineTo(0, drawer_height)
+        corner.lineTo(0, radius)
+        corner.quadTo(0, 0, radius, 0)
+        corner.closeSubpath()
+        self.drawer_clip.setMask(QRegion(corner.toFillPolygon().toPolygon()))
+        rounded = visible == 0
+        if rounded != self.main_corner_rounded:
+            self.main_corner_rounded = rounded
+            self.main_panel.setStyleSheet(
+                '#mainPanel { background: #202b3b; border-top-left-radius: '
+                + ('14px' if rounded else '0px') + '; }')
         self.drawer_clip.setVisible(visible > 0)
         self.main_panel.raise_()
 
@@ -249,6 +339,7 @@ class MainWindow(QMainWindow):
             return
         self.expanded = not self.expanded
         if not self.expanded:
+            self.pending_drawer_page = None
             self.settings_open = False
         self.details.setVisible(self.expanded)
         self.expand_button.setText('Подробиці ↓' if self.expanded else 'Подробиці ↑')
@@ -315,7 +406,7 @@ class MainWindow(QMainWindow):
         if self.schedule_worker is not None:
             return
         self.refresh_button.setEnabled(False)
-        self.refresh_button.setText('Оновлюємо…')
+        self.settings_panel.set_refresh_status('loading')
         self.schedule_worker = ScheduleFetchWorker(self.group, self.region)
         self.schedule_worker.ready.connect(self.received)
         self.schedule_worker.failed.connect(self.failed)
@@ -325,7 +416,11 @@ class MainWindow(QMainWindow):
     def received(self, schedule):
         if (schedule.get('region', DEFAULT_REGION), schedule['group']) != (self.region, self.group):
             return
+        events = self.event_journal.observe(schedule, datetime.now(KYIV_TIMEZONE), self.schedule)
+        self.journal_panel.refresh(self.event_journal)
+        self.event_toast.enqueue(events)
         self.schedule, self.offline = schedule, False
+        self.settings_panel.set_refresh_status('success')
         self.warning.setText(schedule.get('warning', ''))
         self.warning.setToolTip('')
         try:
@@ -338,6 +433,7 @@ class MainWindow(QMainWindow):
         if self.schedule_worker is not None and (self.schedule_worker.region, self.schedule_worker.group) != (self.region, self.group):
             return
         self.offline = True
+        self.settings_panel.set_refresh_status('error')
         self.warning.setText('Немає оновлення. Показано збережений графік.' if self.schedule else f"Джерела недоступні. Повторимо через {self.preferences['refresh_minutes']} хв.")
         self.warning.setToolTip(message)
         self.tick()
@@ -347,7 +443,6 @@ class MainWindow(QMainWindow):
         self.schedule_worker.deleteLater()
         self.schedule_worker = None
         self.refresh_button.setEnabled(True)
-        self.refresh_button.setText('Оновити графік відключень')
         if self.quitting:
             QApplication.instance().quit()
         elif old_selection != (self.region, self.group):
@@ -382,15 +477,17 @@ class MainWindow(QMainWindow):
             self.update_status_label.setText(f"Перевірено {checked:%d.%m %H:%M}{detail}")
         else:
             self.update_status_label.setText(f"Перевірка графіка кожні {self.preferences['refresh_minutes']} хв")
+        QTimer.singleShot(0, self.update_content_height)
         if not self.quitting:
-            visible, sound = self.alerts.evaluate(self.schedule, now, self.group, self.widget_manually_enabled)
+            notify_minutes = tuple(minutes for minutes in (5, 10) if self.preferences[f'notify_{minutes}_minutes'])
+            visible, sound = self.alerts.evaluate(self.schedule, now, self.group, self.widget_manually_enabled, notify_minutes)
             if visible:
                 self.overlay.present(label, self.countdown.text(), color, self.preferences['overlay_position'])
             else:
                 self.overlay.hide()
             self.sync_widget_button()
-            if sound and self.preferences['sound_enabled']:
-                play_warning(self.preferences['sound_name'])
+            if sound is not None:
+                play_warning(sound)
 
     def sync_widget_button(self):
         visible = self.overlay.isVisible()
@@ -417,18 +514,47 @@ class MainWindow(QMainWindow):
             self.tick()
 
     def configure(self):
+        self.toggle_drawer_page(self.settings_scroll)
+
+    def show_journal(self):
+        self.toggle_drawer_page(self.journal_panel)
+
+    def toggle_drawer_page(self, page):
         if self.hiding_to_tray:
             return
-        if self.settings_open:
+        if self.pending_drawer_page == page or (self.pending_drawer_page is None and
+                self.settings_open and self.drawer_pages.currentWidget() == page):
             self.close_settings()
             return
-        self.settings_panel.load(self.preferences)
+        for selector in self.settings_panel.findChildren(SideSelector):
+            selector.menu.dismiss(animated=False)
+        self.pending_drawer_page = None
         if not self.isVisible():
             self.reveal()
+        if self.drawer_reveal > 0 and self.drawer_pages.currentWidget() != page:
+            self.pending_drawer_page = page
+            self.settings_open = False
+            self.anchor(animate=True)
+        else:
+            self.open_drawer_page(page)
+
+    def open_drawer_page(self, page):
+        if page == self.settings_scroll:
+            self.settings_panel.load(self.preferences)
+        else:
+            self.journal_panel.refresh(self.event_journal)
+        self.drawer_pages.setCurrentWidget(page)
         self.settings_open = True
         self.anchor(animate=True)
 
+    def finish_drawer_switch(self):
+        page = self.pending_drawer_page
+        self.pending_drawer_page = None
+        if page is not None and not self.hiding_to_tray and self.isVisible():
+            self.open_drawer_page(page)
+
     def close_settings(self):
+        self.pending_drawer_page = None
         self.settings_open = False
         self.anchor(animate=True)
 
@@ -481,6 +607,7 @@ class MainWindow(QMainWindow):
         for selector in self.settings_panel.findChildren(SideSelector):
             selector.menu.dismiss(animated=False)
         self.panel_animation.stop()
+        self.pending_drawer_page = None
         self.hiding_to_tray = True
         self.main_start_height = self.panel_height
         self.main_end_height = 0.0
@@ -511,7 +638,9 @@ class MainWindow(QMainWindow):
             event.ignore()
 
     def quit_app(self):
+        self.pending_drawer_page = None
         self.quitting = True
+        self.event_toast.stop()
         self.overlay.hide()
         self.poll_timer.stop()
         self.hide()

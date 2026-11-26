@@ -1,3 +1,4 @@
+from blackout_tracker.windows_autostart import migrate_renamed_executable
 """Application startup, single-instance lock and event loop."""
 from blackout_tracker.resources import ASSETS_DIRECTORY
 import json
@@ -35,7 +36,7 @@ def main():
         window.grab().save(str(report.with_suffix('.png')))
         save_json_atomic(report, {'ok': True, 'frozen': bool(getattr(sys, 'frozen', False)),
                            'timezone': str(KYIV_TIMEZONE), 'queue': setup.queue_selector.currentText(),
-                           'qt_widgets': True, 'sound_assets': all((ASSETS_DIRECTORY / (name + '.wav')).exists() for name in ('warning', 'bell', 'siren')), 'tray_available': QSystemTrayIcon.isSystemTrayAvailable()})
+                           'qt_widgets': True, 'sound_assets': all((ASSETS_DIRECTORY / (name + '.wav')).exists() for name in ('siren', 'blackout_in_5', 'blackout_in_10')), 'tray_available': QSystemTrayIcon.isSystemTrayAvailable()})
         window.tray.hide()
         return 0
     folder = get_data_directory()
@@ -60,7 +61,15 @@ def main():
             return 0
         group = dialog.queue_selector.currentText()
         save_json_atomic(folder / 'settings.json', {'region': dialog.region_selector.currentData(), 'group': group})
+    autostart_error = ''
+    try:
+        migrate_renamed_executable()
+    except OSError as exc:
+        autostart_error = f'Не вдалося оновити шлях автозапуску: {exc}'
     window = MainWindow(folder, group)
+    if autostart_error:
+        window.settings_panel.autostart_error.setText(autostart_error)
+        window.settings_panel.autostart_error.show()
     if '--autostart' not in sys.argv or not QSystemTrayIcon.isSystemTrayAvailable():
         window.show()
     return app.exec()

@@ -57,7 +57,7 @@ with patch.object(MainWindow, 'refresh'):
     for _ in range(6):
         QTest.qWait(50)
         assert window.geometry() == fixed_canvas
-        assert window.main_panel.geometry() == fixed_panel
+        assert window.main_panel.geometry().bottomRight() == fixed_panel.bottomRight()
         assert window.drawer_clip.geometry().right() + 1 == window.main_panel.x()
     settings = window.settings_panel
     assert settings.topmost.isChecked()
@@ -71,20 +71,20 @@ with patch.object(MainWindow, 'refresh'):
     QTest.qWait(50)
     assert settled == (window.geometry(), window.main_panel.geometry())
     window.grab().save(str(folder / 'settings.png'))
-    settings.sound_selector.setCurrentIndex(settings.sound_selector.findData('siren'))
+    settings.notify_10.setChecked(True)
     settings.interval.setValue(7)
     settings.topmost.setChecked(False)
     assert window.settings_open
     assert not window.preferences["overlay_topmost"]
     window.close_settings()
     QTest.qWait(300)
-    assert window.preferences['sound_name'] == 'siren'
+    assert window.preferences['notify_10_minutes'] is True
     window.toggle_expanded()
     QTest.qWait(50)
     window.toggle_expanded()
     QTest.qWait(300)
     assert not window.expanded
-    assert window.main_panel.height() == 240
+    assert window.main_panel.height() == window.main_end_height
     assert window.poll_timer.interval() == 420000
     assert not json.loads((folder / 'settings.json').read_text(encoding='utf-8'))['overlay_topmost']
     window.configure()

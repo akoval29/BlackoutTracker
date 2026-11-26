@@ -1,6 +1,7 @@
 from datetime import timedelta
 
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QColor
 from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QHBoxLayout, QScrollArea, QSizePolicy
 from blackout_tracker.schedule import format_time
 
@@ -18,6 +19,33 @@ def day_segments(day):
         else:
             result.append([start, end, state])
     return result
+
+
+class ScheduleIntervalBlock(QLabel):
+    """Highlight an interval and show its description in the day header."""
+
+    def __init__(self, text, description, hint_label, background, foreground):
+        super().__init__(text)
+        self.description = description
+        self.hint_label = hint_label
+        self.setAccessibleName(description)
+        self.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.setMinimumHeight(36)
+        self.setMinimumWidth(54)
+        hover_background = QColor(background).lighter(125).name()
+        self.setStyleSheet(
+            f'QLabel {{ background: {background}; color: {foreground}; border: 1px solid transparent; '
+            'border-radius: 4px; font-size: 14px; font-weight: 600; }'
+            f'QLabel:hover {{ background: {hover_background}; border-color: {foreground}; }}')
+
+    def enterEvent(self, event):
+        self.hint_label.setText(self.description)
+        super().enterEvent(event)
+
+    def leaveEvent(self, event):
+        if self.hint_label.text() == self.description:
+            self.hint_label.clear()
+        super().leaveEvent(event)
 
 
 class ScheduleChart(QWidget):
@@ -38,8 +66,11 @@ class ScheduleChart(QWidget):
         rows = []
         for offset in range(2):
             date = now.date() + timedelta(days=offset)
+            day = days.get(date.isoformat())
+            if offset == 1 and (not day or day['status'] == 'unknown'):
+                continue
             title = ('Сьогодні' if offset == 0 else 'Завтра') + f' · {date:%d.%m}'
-            rows.append((title, days.get(date.isoformat())))
+            rows.append((title, day))
         if rows == self.rows:
             return
         self.rows = rows
@@ -57,14 +88,22 @@ class ScheduleChart(QWidget):
             layout.setSpacing(7)
             layout.setAlignment(Qt.AlignmentFlag.AlignTop)
             label = QLabel(title)
-            label.setStyleSheet('font-size: 12px; color: #a6b6cd;')
-            layout.addWidget(label)
+            label.setStyleSheet('font-size: 12px; color: #c0ccdc;')
+            header = QHBoxLayout()
+            header.setSpacing(6)
+            header.addWidget(label)
+            hint = QLabel()
+            hint.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+            hint.setStyleSheet('font-size: 12px; color: #c0ccdc;')
+            hint.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
+            header.addWidget(hint, 1)
+            layout.addLayout(header)
             segments = day_segments(day)
             if not segments:
                 message = 'Екстрені відключення — графік не діє' if day and day['status'] == 'emergency' else 'Графік ще не опубліковано'
                 label = QLabel(message)
                 label.setWordWrap(True)
-                label.setStyleSheet('background: #263142; color: #a6b6cd; padding: 7px; border-radius: 4px; font-size: 12px;')
+                label.setStyleSheet('background: #263142; color: #c0ccdc; padding: 7px; border-radius: 4px; font-size: 12px;')
                 layout.addWidget(label)
             else:
                 strip = QWidget()
@@ -73,14 +112,10 @@ class ScheduleChart(QWidget):
                 grid.setSpacing(4)
                 for index, (start, end, state) in enumerate(segments):
                     text = f'{format_time(start)} – {format_time(end)}'
-                    label = QLabel(f'{format_time(start)}\n{format_time(end)}')
-                    label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-                    label.setMinimumHeight(36)
-                    label.setMinimumWidth(54)
-                    label.setToolTip(names[state] + ' · ' + text)
-                    label.setAccessibleName(names[state] + ' · ' + text)
                     bg, fg = colors[state]
-                    label.setStyleSheet(f'background: {bg}; color: {fg}; border-radius: 4px; font-size: 14px; font-weight: 600;')
+                    label = ScheduleIntervalBlock(
+                        f'{format_time(start)}\n{format_time(end)}',
+                        names[state] + ' · ' + text, hint, bg, fg)
                     grid.addWidget(label, 1)
                 scroll = QScrollArea()
                 scroll.setFrameShape(QScrollArea.Shape.NoFrame)
