@@ -438,7 +438,7 @@ class MainWindow(QMainWindow):
         self.schedule_worker = None
         self.refresh_button.setEnabled(True)
         if self.quitting:
-            QApplication.instance().quit()
+            self.quit_app()
         elif old_selection != (self.region, self.group):
             self.refresh()
 
@@ -656,11 +656,13 @@ class MainWindow(QMainWindow):
     def quit_app(self):
         self.pending_drawer_page = None
         self.quitting = True
+        if hasattr(self, 'updates') and self.updates.worker is not None:
+            self.updates.worker.requestInterruption()
         self.event_toast.stop()
         self.overlay.hide()
         self.poll_timer.stop()
         self.hide()
         self.tray.hide()
-        if self.schedule_worker is None:
+        if self.schedule_worker is None and (not hasattr(self, 'updates') or self.updates.worker is None):
             QApplication.instance().quit()
 

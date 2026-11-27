@@ -2,7 +2,7 @@
 import json
 from blackout_tracker.regions import DEFAULT_REGION, REGIONS, valid_group
 
-DEFAULTS = {'region': DEFAULT_REGION, 'group': '6.1', 'overlay_topmost': True, 'overlay_position': 'bottom', 'overlay_enabled': True, 'refresh_minutes': 15, 'notify_5_minutes': True, 'notify_10_minutes': False}
+DEFAULTS = {'region': DEFAULT_REGION, 'group': '6.1', 'overlay_topmost': True, 'overlay_position': 'bottom', 'overlay_enabled': True, 'refresh_minutes': 15, 'notify_5_minutes': True, 'notify_10_minutes': False, 'check_updates': True}
 
 
 def normalize_settings(value, group='6.1'):
@@ -12,7 +12,7 @@ def normalize_settings(value, group='6.1'):
     if value.get('region') in REGIONS:
         result['region'] = value['region']
     result['group'] = valid_group(result['region'], group)
-    for key in ('overlay_enabled', 'overlay_topmost', 'notify_5_minutes', 'notify_10_minutes'):
+    for key in ('overlay_enabled', 'overlay_topmost', 'notify_5_minutes', 'notify_10_minutes', 'check_updates'):
         if type(value.get(key)) is bool:
             result[key] = value[key]
     if 'notify_5_minutes' not in value and type(value.get('sound_enabled')) is bool:

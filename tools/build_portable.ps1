@@ -1,18 +1,23 @@
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path -Parent $PSScriptRoot
 Set-Location $projectRoot
+$version = & .\.venv\Scripts\python.exe -c "from blackout_tracker.version import VERSION; print(VERSION)"
+if ($LASTEXITCODE -ne 0) { throw 'Cannot read application version' }
 # Build a clean portable payload separately; never package or delete the user's data folder.
 $stage = 'build\portable-staging'
 & .\.venv\Scripts\python.exe -m PyInstaller --noconfirm --windowed --onedir --distpath $stage --specpath build --name BlackoutTracker --icon "${projectRoot}\assets\app-icon.ico" --collect-data tzdata --add-data "${projectRoot}\assets:assets" main.py
 if ($LASTEXITCODE -ne 0) { throw 'Build failed' }
 $payload = Join-Path $stage 'BlackoutTracker'
 Rename-Item -LiteralPath (Join-Path $payload 'BlackoutTracker.exe') -NewName 'Blackout tracker.exe'
+& .\.venv\Scripts\python.exe -m PyInstaller --noconfirm --onefile --windowed --distpath 'build\updater-dist' --workpath 'build\updater-work' --specpath build --name Updater tools/portable_updater.py
+if ($LASTEXITCODE -ne 0) { throw 'Updater build failed' }
+Copy-Item -LiteralPath 'build\updater-dist\Updater.exe' -Destination (Join-Path $payload 'Updater.exe')
 Copy-Item -LiteralPath 'README.txt' -Destination (Join-Path $payload 'README.txt')
 & .\.venv\Scripts\python.exe tools/collect_licenses.py (Join-Path $payload 'licenses')
 if ($LASTEXITCODE -ne 0) { throw 'License collection failed' }
 Set-Content -LiteralPath (Join-Path $payload 'portable.flag') -Value 'portable'
 New-Item -ItemType Directory -Force -Path 'dist' | Out-Null
-Compress-Archive -Path $payload -DestinationPath 'dist\BlackoutTracker-0.12-win-x64.zip' -Force
+Compress-Archive -Path $payload -DestinationPath "dist\BlackoutTracker-$version-win-x64.zip" -Force
 # Refresh the immediately runnable folder, keeping its data/ preferences and cache.
 $destination = Join-Path $projectRoot 'dist\BlackoutTracker'
 $executable = Join-Path $destination 'Blackout tracker.exe'

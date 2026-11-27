@@ -19,6 +19,8 @@ from blackout_tracker.ui.theme import APP_STYLESHEET
 def main():
     app = QApplication(sys.argv)
     app.setApplicationName('BlackoutTracker')
+    from blackout_tracker.version import VERSION
+    app.setApplicationVersion(VERSION)
     app.setWindowIcon(load_app_icon())
     app.setStyle('Fusion')
     app.setStyleSheet(APP_STYLESHEET)
@@ -67,6 +69,8 @@ def main():
     except OSError as exc:
         autostart_error = f'Не вдалося оновити шлях автозапуску: {exc}'
     window = MainWindow(folder, group)
+    from blackout_tracker.update_controller import UpdateController
+    window.updates = UpdateController(window)
     if autostart_error:
         window.settings_panel.autostart_error.setText(autostart_error)
         window.settings_panel.autostart_error.show()

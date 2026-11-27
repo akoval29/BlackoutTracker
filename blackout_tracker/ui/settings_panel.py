@@ -7,6 +7,7 @@ import blackout_tracker.windows_autostart as autostart
 from blackout_tracker.ui.side_selector import SideSelector
 from blackout_tracker.regions import DEFAULT_REGION, REGIONS, groups_for, valid_group
 from blackout_tracker.audio import play_warning
+from blackout_tracker.version import VERSION
 
 
 class SettingsPanel(QWidget):
@@ -139,6 +140,21 @@ class SettingsPanel(QWidget):
         startup_hint.setWordWrap(True)
         startup_hint.setStyleSheet('color: #c0ccdc; font-size: 12px;')
         layout.addWidget(startup_hint)
+        layout = section('Оновлення програми', 4)
+        self.auto_updates = QCheckBox('Автоматично перевіряти оновлення')
+        self.auto_updates.setToolTip('Перевірка GitHub при запуску та кожні 6 годин. Завантаження — лише після вашого кліку.')
+        layout.addWidget(self.auto_updates)
+        self.update_status = QLabel(f'Версія {VERSION}. Завантаження й перезапуск — лише після вашого кліку.')
+        self.update_status.setWordWrap(True)
+        self.update_status.setTextFormat(Qt.TextFormat.PlainText)
+        layout.addWidget(self.update_status)
+        self.update_notes = QLabel()
+        self.update_notes.setWordWrap(True)
+        self.update_notes.setTextFormat(Qt.TextFormat.PlainText)
+        self.update_notes.hide()
+        layout.addWidget(self.update_notes)
+        self.update_button = QPushButton('Перевірити оновлення')
+        layout.addWidget(self.update_button)
         layout = self.root_layout
         self.error = QLabel()
         self.error.setWordWrap(True)
@@ -149,7 +165,7 @@ class SettingsPanel(QWidget):
         self.load(preferences)
         self.region_selector.currentIndexChanged.connect(self.region_changed)
         for signal in (self.queue_selector.currentTextChanged, self.interval.valueChanged,
-                       self.position.currentIndexChanged, self.topmost.toggled, self.notify_5.toggled, self.notify_10.toggled):
+                       self.position.currentIndexChanged, self.topmost.toggled, self.notify_5.toggled, self.notify_10.toggled, self.auto_updates.toggled):
             signal.connect(self.changed)
 
     def configure_columns(self, width):
@@ -236,6 +252,7 @@ class SettingsPanel(QWidget):
             self.interval.setValue(preferences['refresh_minutes'])
             self.notify_5.setChecked(preferences['notify_5_minutes'])
             self.notify_10.setChecked(preferences['notify_10_minutes'])
+            self.auto_updates.setChecked(preferences.get('check_updates', True))
             self.error.clear()
             self.error.hide()
         finally:
@@ -244,5 +261,6 @@ class SettingsPanel(QWidget):
     def values(self):
         return {'region': self.region_selector.currentData(), 'group': self.queue_selector.currentText(), 'overlay_topmost': self.topmost.isChecked(),
                 'refresh_minutes': self.interval.value(), 'notify_5_minutes': self.notify_5.isChecked(),
-                'notify_10_minutes': self.notify_10.isChecked(), 'overlay_position': self.position.currentData()}
+                'notify_10_minutes': self.notify_10.isChecked(), 'overlay_position': self.position.currentData(),
+                'check_updates': self.auto_updates.isChecked()}
 
