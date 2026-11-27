@@ -22,16 +22,22 @@ class UpdateTests(unittest.TestCase):
         self.assertEqual(version_tuple('v0.12'), version_tuple('0.12.0'))
         self.assertIsNone(parse_release(self.release('v0.12'), '0.13.0'))
         self.assertIsNone(parse_release(dict(self.release(), prerelease=True)))
-        self.assertEqual(parse_release(self.release()).version, '0.14.0')
+        self.assertEqual(parse_release(self.release(), '0.13.0').version, '0.14.0')
         with self.assertRaises(ValueError):
             version_tuple('v1.0.0-beta')
+
+    def test_current_release_updates_both_previously_published_versions(self):
+        from blackout_tracker.version import VERSION
+        for previous in ('0.13.0', '1.0.0'):
+            self.assertEqual(parse_release(self.release('v' + VERSION), previous).version, VERSION)
+        self.assertIsNone(parse_release(self.release('v' + VERSION), VERSION))
 
     def test_reject_wrong_asset_digest_and_origin(self):
         for key, value in [('name', 'Source code.zip'), ('digest', None), ('browser_download_url', 'https://evil.example/file')]:
             release = self.release()
             release['assets'][0][key] = value
             with self.assertRaises(ValueError):
-                parse_release(release)
+                parse_release(release, '0.13.0')
 
     def archive(self, extra=None):
         result = io.BytesIO()
@@ -112,7 +118,7 @@ class UpdateTests(unittest.TestCase):
                 window = MainWindow(base, '6.1')
                 controller = UpdateController(window)
                 window.updates = controller
-                with patch('blackout_tracker.update_controller.check_release', return_value=parse_release(self.release())) as check, patch('blackout_tracker.update_controller.prepare_update', side_effect=ValueError('test download failed')) as download:
+                with patch('blackout_tracker.update_controller.check_release', return_value=parse_release(self.release(), '0.13.0')) as check, patch('blackout_tracker.update_controller.prepare_update', side_effect=ValueError('test download failed')) as download:
                     window.preferences['check_updates'] = False
                     controller.auto_check()
                     check.assert_not_called()
