@@ -2,7 +2,7 @@
 import json
 from blackout_tracker.regions import DEFAULT_REGION, REGIONS, valid_group
 
-DEFAULTS = {'region': DEFAULT_REGION, 'group': '6.1', 'overlay_topmost': True, 'overlay_position': 'bottom', 'overlay_enabled': True, 'refresh_minutes': 15, 'notify_5_minutes': True, 'notify_10_minutes': False, 'check_updates': True}
+DEFAULTS = {'region': DEFAULT_REGION, 'group': '6.1', 'overlay_topmost': True, 'overlay_position': 'bottom', 'overlay_enabled': True, 'refresh_minutes': 15, 'notify_5_minutes': True, 'notify_10_minutes': False, 'audio_language': 'ua', 'check_updates': True}
 
 
 def normalize_settings(value, group='6.1'):
@@ -17,6 +17,8 @@ def normalize_settings(value, group='6.1'):
             result[key] = value[key]
     if 'notify_5_minutes' not in value and type(value.get('sound_enabled')) is bool:
         result['notify_5_minutes'] = value['sound_enabled']
+    if value.get('audio_language') in ('ua', 'en', 'de'):
+        result['audio_language'] = value['audio_language']
     if value.get('overlay_position') in ('top', 'top-right', 'top-left', 'bottom-right', 'bottom-left', 'bottom'):
         result['overlay_position'] = value['overlay_position']
     interval = value.get('refresh_minutes')

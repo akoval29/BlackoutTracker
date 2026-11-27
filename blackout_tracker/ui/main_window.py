@@ -16,7 +16,7 @@ from blackout_tracker.schedule import KYIV_TIMEZONE, get_schedule_state, is_sche
 from blackout_tracker.resources import load_app_icon
 from blackout_tracker.storage import save_json_atomic
 from blackout_tracker.ui.settings_panel import SettingsPanel
-from blackout_tracker.audio import play_warning
+from blackout_tracker.audio import play_warning, get_player
 from blackout_tracker.ui.countdown_widget import CountdownWidget
 from blackout_tracker.schedule_worker import ScheduleFetchWorker
 
@@ -32,6 +32,7 @@ class MainWindow(QMainWindow):
         self.event_toast = EventToast(self)
         self.alerts = AlertState()
         self.overlay = CountdownWidget()
+        self.audio_active = False
         self.overlay.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint, self.preferences['overlay_topmost'])
         self.overlay.dismissed.connect(self.dismiss_overlay)
         self.widget_manually_enabled = self.preferences['overlay_enabled']
@@ -210,6 +211,10 @@ class MainWindow(QMainWindow):
         self.poll_timer = QTimer(self)
         self.poll_timer.timeout.connect(self.refresh)
         self.poll_timer.start(self.preferences['refresh_minutes'] * 60_000)
+        self.audio_player = get_player()
+        self.audio_player.activity_changed.connect(self.audio_activity_changed)
+        self.audio_active = self.audio_player.is_active
+        self.overlay.set_audio_active(self.audio_active)
         self.tick()
         self.dock_screen = QApplication.primaryScreen()
         self.dock_screen.availableGeometryChanged.connect(self.anchor)
@@ -236,7 +241,6 @@ class MainWindow(QMainWindow):
         base = min(420, area.width())
         maximum_drawer_width = min(700, max(0, area.width() - base))
         self.drawer_width = maximum_drawer_width
-        self.settings_panel.configure_columns(self.drawer_width)
         # Keep the native translucent canvas fixed: only child widgets animate.
         # This avoids Windows resize/compositor jitter and an end-of-motion snap.
         width = base + maximum_drawer_width
@@ -476,13 +480,21 @@ class MainWindow(QMainWindow):
         if not self.quitting:
             notify_minutes = tuple(minutes for minutes in (5, 10) if self.preferences[f'notify_{minutes}_minutes'])
             visible, sound = self.alerts.evaluate(self.schedule, now, self.group, self.widget_manually_enabled, notify_minutes)
-            if visible and self.widget_manually_enabled:
+            if (visible and self.widget_manually_enabled) or self.audio_active:
                 self.overlay.present(label, self.countdown.text(), color, self.preferences['overlay_position'])
             else:
                 self.overlay.hide()
             self.sync_widget_button()
             if sound is not None:
-                play_warning(sound)
+                play_warning(sound, self.preferences['audio_language'])
+
+    def audio_activity_changed(self, active):
+        if self.quitting:
+            return
+        self.audio_active = active
+        self.overlay.set_audio_active(active)
+        # Audio previews may temporarily reveal the widget without changing preferences.
+        self.tick()
 
     def sync_widget_button(self):
         visible = self.overlay.isVisible()
@@ -603,6 +615,20 @@ class MainWindow(QMainWindow):
         self.tick()
         if group_changed:
             self.refresh()
+
+    def reveal_compact(self):
+        self.panel_animation.stop()
+        self.hiding_to_tray = False
+        self.pending_drawer_page = None
+        self.settings_open = False
+        self.expanded = False
+        self.details.hide()
+        self.expand_button.setText('Показати графік ↓')
+        self.drawer_reveal = 0.0
+        for selector in self.settings_panel.findChildren(SideSelector):
+            selector.menu.dismiss(animated=False)
+        self.reveal()
+        self.anchor(animate=True)
 
     def reveal(self):
         if self.hiding_to_tray:

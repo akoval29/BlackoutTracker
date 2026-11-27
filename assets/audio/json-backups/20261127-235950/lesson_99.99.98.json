@@ -1,0 +1,36 @@
+[
+  {
+    "text": {
+      "ua": "Увага! Планове відключення електрики через десять хвилин!",
+      "en": "Attention! A scheduled power outage will begin in ten minutes!"
+    }
+  },
+  {
+    "text": {
+      "en": "Attention! The threat level has changed to yellow. A threat warning remains in effect. Follow official updates.",
+      "de": "Achtung! Die Warnstufe wurde auf Gelb geändert. Eine Gefahrenwarnung besteht weiterhin. Beachten Sie die offiziellen Meldungen."
+    }
+  },
+  {
+    "text": {
+      "en": "Attention! An air raid alert has been issued for your selected local community! Proceed to a shelter!"
+    }
+  },
+  {
+    "text": {
+      "ua": "Увага! Повідомлено про загрозу застосування балістичних ракет.",
+      "de": "Achtung! Es wurde eine Bedrohung durch ballistische Raketen gemeldet."
+    }
+  },
+  {
+    "text": {
+      "ua": "Увага! Повідомлено про активність стратегічної авіації."
+    }
+  },
+  {
+    "text": {
+      "en": "Attention! Alert information is out of date. The current status is unconfirmed. Check official updates.",
+      "de": "Achtung! Die Warnmeldungen sind veraltet. Der aktuelle Status ist nicht bestätigt. Prüfen Sie die offiziellen Meldungen."
+    }
+  }
+]

@@ -1,0 +1,1089 @@
+{
+  "bucket": "niderlands-3bd21.appspot.com",
+  "importedAt": "2026-11-27T22:10:31.760Z",
+  "expectedCount": 108,
+  "files": [
+    {
+      "source": "voiceAction/integration_course-uk-UA/lesson_99.99.96/повідомлено-про-загрозу-застос.aac",
+      "localPath": "assets/audio/ua/threat_guided_aerial_bombs.mp3",
+      "size": 26928,
+      "sha256": "7183c00a05cafde904725654f4a7f7831504a111c481b42011dd1277e699e6c6",
+      "generation": "1795817365730634",
+      "language": "ua",
+      "text": "Повідомлено про загрозу застосування керованих авіаційних бомб.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-uk-UA/lesson_99.99.96/повідомлено-про-загрозу-застос.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-uk-UA/lesson_99.99.97/повідомлено-про-загрозу-крилат.aac",
+      "localPath": "assets/audio/ua/threat_cruise_missiles.mp3",
+      "size": 19872,
+      "sha256": "89f90d22903c9d4179a948354c4e6c386db8951c338d06baed028eae9f46e1ac",
+      "generation": "1795817355994895",
+      "language": "ua",
+      "text": "Повідомлено про загрозу крилатих ракет.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-uk-UA/lesson_99.99.97/повідомлено-про-загрозу-крилат.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-uk-UA/lesson_99.99.98/планове-відключення-електрики-.aac",
+      "localPath": "assets/audio/ua/power_outage_in_10_minutes.mp3",
+      "size": 23472,
+      "sha256": "6bd4b69d7c3524f2e769136e4756e466cbe9e896ccf42bdc58b2ba5907808024",
+      "generation": "1795817323734585",
+      "language": "ua",
+      "text": "Планове відключення електрики через десять хвилин!",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-uk-UA/lesson_99.99.98/планове-відключення-електрики-.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-uk-UA/lesson_99.99.98/повідомлено-про-активність-стр.aac",
+      "localPath": "assets/audio/ua/activity_strategic_aircraft.mp3",
+      "size": 23184,
+      "sha256": "479d1a4b8c3127d9366a748f1744c159ff9c95f0d7ffa13a9d06bbb9fed82299",
+      "generation": "1795817337276908",
+      "language": "ua",
+      "text": "Повідомлено про активність стратегічної авіації.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-uk-UA/lesson_99.99.98/повідомлено-про-активність-стр.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-uk-UA/lesson_99.99.98/повідомлено-про-загрозу-застос.aac",
+      "localPath": "assets/audio/ua/threat_ballistic_missiles.mp3",
+      "size": 25056,
+      "sha256": "e7143d946242e8fd014c9c944a0fbb6f77b949a7a34582fa34bc978494d52da8",
+      "generation": "1795817334966410",
+      "language": "ua",
+      "text": "Повідомлено про загрозу застосування балістичних ракет.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-uk-UA/lesson_99.99.98/повідомлено-про-загрозу-застос.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-uk-UA/lesson_99.99.99/аудіосповіщення-вимкнено.aac",
+      "localPath": "assets/audio/ua/audio_disabled.mp3",
+      "size": 16416,
+      "sha256": "079b1bef49129fdfc1e2c73fcf4906c79e3f27372ca23b1829fcbdb87714d762",
+      "generation": "1795817312073557",
+      "language": "ua",
+      "text": "Аудіосповіщення вимкнено.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-uk-UA/lesson_99.99.99/аудіосповіщення-вимкнено.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-uk-UA/lesson_99.99.99/аудіосповіщення-увімкнено.aac",
+      "localPath": "assets/audio/ua/audio_enabled.mp3",
+      "size": 17280,
+      "sha256": "12bb43a8e87bc60e0875f1f2d829b603d892f6db4d16672166c54434ef0bf45d",
+      "generation": "1795817305934573",
+      "language": "ua",
+      "text": "Аудіосповіщення увімкнено.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-uk-UA/lesson_99.99.99/аудіосповіщення-увімкнено.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-uk-UA/lesson_99.99.99/блекаут-трекер-оновлено.aac",
+      "localPath": "assets/audio/ua/app_updated.mp3",
+      "size": 15552,
+      "sha256": "af6785de812480bd441166c3247e7245865a9a411adbc25a92b61079c5c9b081",
+      "generation": "1795817287339405",
+      "language": "ua",
+      "text": "Блекаут Трекер оновлено!",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-uk-UA/lesson_99.99.99/блекаут-трекер-оновлено.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-uk-UA/lesson_99.99.99/відбій-повітряної-тривоги-для-.aac",
+      "localPath": "assets/audio/ua/alert_air_raid_ended.mp3",
+      "size": 23040,
+      "sha256": "04acff334b25ce99d35200937b0ab4ef4ab6ca251e9b4c8aa28b370429c31c8d",
+      "generation": "1795817258387839",
+      "language": "ua",
+      "text": "Відбій повітряної тривоги для вибраної території.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-uk-UA/lesson_99.99.99/відбій-повітряної-тривоги-для-.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-uk-UA/lesson_99.99.99/графік-відключень-електрики-зм.aac",
+      "localPath": "assets/audio/ua/power_schedule_changed.mp3",
+      "size": 40608,
+      "sha256": "de7480e5da4125cd9a63efc80faaba7ced533c6b0aae793f99c697b322b9c308",
+      "generation": "1795817133770515",
+      "language": "ua",
+      "text": "Графік відключень електрики змінився. Перевірте оновлений розклад у застосунку.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-uk-UA/lesson_99.99.99/графік-відключень-електрики-зм.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-uk-UA/lesson_99.99.99/графік-відключень-електрики-ти.aac",
+      "localPath": "assets/audio/ua/power_schedule_unavailable.mp3",
+      "size": 24336,
+      "sha256": "2471dfb7033769ef8ac8d1f664a57472f31c4b6803063b4ee39c6413ef336b8c",
+      "generation": "1795817137933605",
+      "language": "ua",
+      "text": "Графік відключень електрики тимчасово недоступний.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-uk-UA/lesson_99.99.99/графік-відключень-електрики-ти.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-uk-UA/lesson_99.99.99/дані-про-тривоги-застаріли-пот.aac",
+      "localPath": "assets/audio/ua/data_alerts_outdated.mp3",
+      "size": 51840,
+      "sha256": "df3bed1088547aeca2acd3e5d53737b8025253fd418c9633a7075c40180c40b7",
+      "generation": "1795817274948910",
+      "language": "ua",
+      "text": "Дані про тривоги застаріли. Поточний статус не підтверджено. Перевірте офіційні повідомлення.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-uk-UA/lesson_99.99.99/дані-про-тривоги-застаріли-пот.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-uk-UA/lesson_99.99.99/дані-про-тривоги-тимчасово-нед.aac",
+      "localPath": "assets/audio/ua/data_alerts_unavailable.mp3",
+      "size": 37584,
+      "sha256": "601f046c083cfe54ad25f7a302295e09e529fd1a37298ed447f9e2425e2fff78",
+      "generation": "1795817272352854",
+      "language": "ua",
+      "text": "Дані про тривоги тимчасово недоступні. Перевірте офіційні повідомлення.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-uk-UA/lesson_99.99.99/дані-про-тривоги-тимчасово-нед.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-uk-UA/lesson_99.99.99/доступне-оновлення-програми.aac",
+      "localPath": "assets/audio/ua/app_update_available.mp3",
+      "size": 16704,
+      "sha256": "b2693fd6ff2a5d600e1419b15f196e5a9a35c29c26a92d5362dce48ed42e1501",
+      "generation": "1795817293542480",
+      "language": "ua",
+      "text": "Доступне оновлення програми.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-uk-UA/lesson_99.99.99/доступне-оновлення-програми.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-uk-UA/lesson_99.99.99/жовтий-рівень-загрози-попередж.aac",
+      "localPath": "assets/audio/ua/alert_yellow_level.mp3",
+      "size": 54288,
+      "sha256": "f92816ee8779c678ba1f8fc59621f01450f31d7f7066df5c873c7f91f1621425",
+      "generation": "1795817164659778",
+      "language": "ua",
+      "text": "Жовтий рівень загрози. Попередження про можливу повітряну небезпеку. Стежте за офіційними повідомленнями.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-uk-UA/lesson_99.99.99/жовтий-рівень-загрози-попередж.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-uk-UA/lesson_99.99.99/за-графіком-електропостачання-.aac",
+      "localPath": "assets/audio/ua/power_scheduled_restore_in_5_minutes.mp3",
+      "size": 29088,
+      "sha256": "552ba99ec0d1f7ad1e72b6e0ffdb9b3da089208f63593652a4d3b179d43efdd9",
+      "generation": "1795817144267437",
+      "language": "ua",
+      "text": "За графіком електропостачання мають відновити через п'ять хвилин.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-uk-UA/lesson_99.99.99/за-графіком-електропостачання-.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-uk-UA/lesson_99.99.99/за-графіком-період-відключення.aac",
+      "localPath": "assets/audio/ua/power_scheduled_outage_end.mp3",
+      "size": 24768,
+      "sha256": "6a4869a790312a980f56e7f9f91a1c5139cb19249c3df06381c7f297a2294eaa",
+      "generation": "1795817150489558",
+      "language": "ua",
+      "text": "За графіком період відключення електрики завершився.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-uk-UA/lesson_99.99.99/за-графіком-період-відключення.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-uk-UA/lesson_99.99.99/за-графіком-планове-відключенн.aac",
+      "localPath": "assets/audio/ua/power_scheduled_outage_start.mp3",
+      "size": 28080,
+      "sha256": "4a147f7cbc280be56a6bbf6dd2e19547f2beaa3174125f714814b263bd6da0f2",
+      "generation": "1795817126550183",
+      "language": "ua",
+      "text": "За графіком планове відключення електрики починається зараз!",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-uk-UA/lesson_99.99.99/за-графіком-планове-відключенн.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-uk-UA/lesson_99.99.99/отримання-даних-про-тривоги-ві.aac",
+      "localPath": "assets/audio/ua/data_alerts_resumed.mp3",
+      "size": 19872,
+      "sha256": "e818f2fa3032e00f687b6b2aa404a96078e142dcf819d406a901a8a74b9b12c0",
+      "generation": "1795817281198390",
+      "language": "ua",
+      "text": "Отримання даних про тривоги відновлено.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-uk-UA/lesson_99.99.99/отримання-даних-про-тривоги-ві.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-uk-UA/lesson_99.99.99/перевірка-звуку-аудіосповіщенн.aac",
+      "localPath": "assets/audio/ua/audio_sound_check.mp3",
+      "size": 28512,
+      "sha256": "c59b31e4c8f7db90bb6ce652f3136f36c452563712f0f081ec4d04e41e5fd69b",
+      "generation": "1795817299760688",
+      "language": "ua",
+      "text": "Перевірка звуку. Аудіосповіщення працюють.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-uk-UA/lesson_99.99.99/перевірка-звуку-аудіосповіщенн.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-uk-UA/lesson_99.99.99/планове-відключення-електрики-.aac",
+      "localPath": "assets/audio/ua/power_outage_in_5_minutes.mp3",
+      "size": 23472,
+      "sha256": "9cdc4d89d32006cf0ef06bcdbb65829891563adcbbfe8a70f26dbb2ab08d6311",
+      "generation": "1795817117346249",
+      "language": "ua",
+      "text": "Планове відключення електрики через п'ять хвилин!",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-uk-UA/lesson_99.99.99/планове-відключення-електрики-.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-uk-UA/lesson_99.99.99/повідомлено-про-активність-так.aac",
+      "localPath": "assets/audio/ua/activity_tactical_aircraft.mp3",
+      "size": 22032,
+      "sha256": "82ee14071af8bc4496b717e83dbe153e5a57f6dc1e7e991d3ad244cd79a887bf",
+      "generation": "1795817227264876",
+      "language": "ua",
+      "text": "Повідомлено про активність тактичної авіації.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-uk-UA/lesson_99.99.99/повідомлено-про-активність-так.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-uk-UA/lesson_99.99.99/повідомлено-про-загрозу-безпіл.aac",
+      "localPath": "assets/audio/ua/threat_drones.mp3",
+      "size": 19872,
+      "sha256": "bb13b5cf44a081ec28c7fa652d8011985d1818563c406ee3d278315d5b052700",
+      "generation": "1795817207467879",
+      "language": "ua",
+      "text": "Повідомлено про загрозу безпілотників.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-uk-UA/lesson_99.99.99/повідомлено-про-загрозу-безпіл.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-uk-UA/lesson_99.99.99/повідомлено-про-зліт-літака-мі.aac",
+      "localPath": "assets/audio/ua/activity_mig31k_takeoff.mp3",
+      "size": 22608,
+      "sha256": "25478ddaee4c504d06b7faacf90e4b3e23abacc67028f4311784fb18b4c18f65",
+      "generation": "1795817238416222",
+      "language": "ua",
+      "text": "Повідомлено про зліт літака МіГ тридцять один ка.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-uk-UA/lesson_99.99.99/повідомлено-про-зліт-літака-мі.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-uk-UA/lesson_99.99.99/повідомлено-про-ракетну-загроз.aac",
+      "localPath": "assets/audio/ua/threat_unspecified_missiles.mp3",
+      "size": 17280,
+      "sha256": "bcc63fdd99c2606803ec4b8f065b5459538db6e062f343b3916ad1499a73ec0d",
+      "generation": "1795817218307234",
+      "language": "ua",
+      "text": "Повідомлено про ракетну загрозу.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-uk-UA/lesson_99.99.99/повідомлено-про-ракетну-загроз.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-uk-UA/lesson_99.99.99/повідомлено-про-роботу-протипо.aac",
+      "localPath": "assets/audio/ua/activity_air_defense.mp3",
+      "size": 22176,
+      "sha256": "fb9ced4266acb15ef2649ca63195c7a224aa27ccc4299a459befc18f77c4249d",
+      "generation": "1795817245136990",
+      "language": "ua",
+      "text": "Повідомлено про роботу протиповітряної оборони.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-uk-UA/lesson_99.99.99/повідомлено-про-роботу-протипо.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-uk-UA/lesson_99.99.99/повітряна-тривога-прямуйте-в-у.aac",
+      "localPath": "assets/audio/ua/alert_air_raid.mp3",
+      "size": 25344,
+      "sha256": "da3d09bca550041a7f5154c5e093c25ef41a5a797bf2dbf1f2af712cad50f7ef",
+      "generation": "1795817157198753",
+      "language": "ua",
+      "text": "Повітряна тривога! Прямуйте в укриття!",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-uk-UA/lesson_99.99.99/повітряна-тривога-прямуйте-в-у.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-uk-UA/lesson_99.99.99/повітряна-тривога-триває-залиш.aac",
+      "localPath": "assets/audio/ua/alert_ongoing.mp3",
+      "size": 29808,
+      "sha256": "2e8de9f2c34d79f1faba4fa8f6a703a8781eb582648902908fadfc6b80a28332",
+      "generation": "1795817251714081",
+      "language": "ua",
+      "text": "Повітряна тривога триває. Залишайтеся в укритті.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-uk-UA/lesson_99.99.99/повітряна-тривога-триває-залиш.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-uk-UA/lesson_99.99.99/попередження-про-загрозу-знято.aac",
+      "localPath": "assets/audio/ua/alert_warning_lifted.mp3",
+      "size": 24336,
+      "sha256": "64b8e2b69931491ab1e2cdf067abce6042e197a275ea2c6e39cffc36de7237d0",
+      "generation": "1795817265287232",
+      "language": "ua",
+      "text": "Попередження про загрозу знято для вибраної території.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-uk-UA/lesson_99.99.99/попередження-про-загрозу-знято.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-uk-UA/lesson_99.99.99/рівень-загрози-змінено-на-жовт.aac",
+      "localPath": "assets/audio/ua/alert_level_changed_to_yellow.mp3",
+      "size": 58464,
+      "sha256": "7f7aa207c6011f7cb4e41cd1dd7dd8f4f126558ada219c98efdac524255598e1",
+      "generation": "1795817181691742",
+      "language": "ua",
+      "text": "Рівень загрози змінено на жовтий. Попередження про небезпеку залишається чинним. Стежте за офіційними повідомленнями.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-uk-UA/lesson_99.99.99/рівень-загрози-змінено-на-жовт.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-uk-UA/lesson_99.99.99/рівень-загрози-підвищено-до-че.aac",
+      "localPath": "assets/audio/ua/alert_level_raised_to_red.mp3",
+      "size": 44784,
+      "sha256": "b139a3335b5772565905237c5f9857aeb067388e73d8768e1de1087183e516e6",
+      "generation": "1795817179093777",
+      "language": "ua",
+      "text": "Рівень загрози підвищено до червоного. Повітряна тривога! Прямуйте в укриття!",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-uk-UA/lesson_99.99.99/рівень-загрози-підвищено-до-че.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-uk-UA/lesson_99.99.99/у-вибраному-районі-оголошено-п.aac",
+      "localPath": "assets/audio/ua/alert_district.mp3",
+      "size": 35856,
+      "sha256": "efb21662e6ae500511efb41f3dc0fdb01f8d679686aa76be5a26c2a11b9fed09",
+      "generation": "1795817196025084",
+      "language": "ua",
+      "text": "У вибраному районі оголошено повітряну тривогу! Прямуйте в укриття!",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-uk-UA/lesson_99.99.99/у-вибраному-районі-оголошено-п.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-uk-UA/lesson_99.99.99/у-вибраній-громаді-оголошено-п.aac",
+      "localPath": "assets/audio/ua/alert_community.mp3",
+      "size": 35424,
+      "sha256": "914465d31c5be09ff09ac95389fc880c5ed81ea17dea7acf081dfd22a2bfbbe3",
+      "generation": "1795817200839517",
+      "language": "ua",
+      "text": "У вибраній громаді оголошено повітряну тривогу! Прямуйте в укриття!",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-uk-UA/lesson_99.99.99/у-вибраній-громаді-оголошено-п.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-uk-UA/lesson_99.99.99/у-частині-вибраної-області-діє.aac",
+      "localPath": "assets/audio/ua/alert_partial_region.mp3",
+      "size": 50976,
+      "sha256": "1b290cf2420c176ca594f4e532e7d85f8dbd9bb62c0312435e53c338be560ae6",
+      "generation": "1795817188894808",
+      "language": "ua",
+      "text": "У частині вибраної області діє попередження про повітряну небезпеку. Перевірте статус свого району або громади.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-uk-UA/lesson_99.99.99/у-частині-вибраної-області-діє.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-uk-UA/lesson_99.99.99/увага.aac",
+      "localPath": "assets/audio/ua/common_attention.mp3",
+      "size": 11232,
+      "sha256": "40d05b346136e91970a0ec6fc36291906e389640ba9838afc2915a24e9e1d222",
+      "generation": "1795817110545718",
+      "language": "ua",
+      "text": "Увага!",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-uk-UA/lesson_99.99.99/увага.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-uk-UA/lesson_99.99.99/червоний-рівень-загрози-повітр.aac",
+      "localPath": "assets/audio/ua/alert_red_level.mp3",
+      "size": 39744,
+      "sha256": "513be62547ad06234044e28840d2093815e38b3dce6901ee52c9fa6c513a62ac",
+      "generation": "1795817171894450",
+      "language": "ua",
+      "text": "Червоний рівень загрози. Повітряна тривога! Прямуйте в укриття!",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-uk-UA/lesson_99.99.99/червоний-рівень-загрози-повітр.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-en-US/lesson_99.99.98/a-scheduled-power-outage-will-.aac",
+      "localPath": "assets/audio/en/power_outage_in_10_minutes.mp3",
+      "size": 19584,
+      "sha256": "d48f40e0134acfefdfe3bf4f681df96f745cb1ffcd2800a76b24e0830a4e0137",
+      "generation": "1795817321368842",
+      "language": "en",
+      "text": "A scheduled power outage will begin in ten minutes!",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-en-US/lesson_99.99.98/a-scheduled-power-outage-will-.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-en-US/lesson_99.99.98/alert-information-is-out-of-da.aac",
+      "localPath": "assets/audio/en/data_alerts_outdated.mp3",
+      "size": 39600,
+      "sha256": "94cc8015700a7149f9af6be3e6e903e985a6c4d8a8a9ce44230867d30851f04a",
+      "generation": "1795817339394403",
+      "language": "en",
+      "text": "Alert information is out of date. The current status is unconfirmed. Check official updates.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-en-US/lesson_99.99.98/alert-information-is-out-of-da.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-en-US/lesson_99.99.98/an-air-raid-alert-has-been-iss.aac",
+      "localPath": "assets/audio/en/alert_community.mp3",
+      "size": 34128,
+      "sha256": "3a30250fd64fd6afc165b7146f2a36a7fd9713b2d52ca1b95b6b9c6eb8373d8c",
+      "generation": "1795817330425667",
+      "language": "en",
+      "text": "An air raid alert has been issued for your selected local community! Proceed to a shelter!",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-en-US/lesson_99.99.98/an-air-raid-alert-has-been-iss.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-en-US/lesson_99.99.98/the-threat-level-has-changed-t.aac",
+      "localPath": "assets/audio/en/alert_level_changed_to_yellow.mp3",
+      "size": 42192,
+      "sha256": "2603a6ccca79981a538c6d4d9cc732cfc7a6519df51051fcea56b3c19b1e1ea8",
+      "generation": "1795817325889111",
+      "language": "en",
+      "text": "The threat level has changed to yellow. A threat warning remains in effect. Follow official updates.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-en-US/lesson_99.99.98/the-threat-level-has-changed-t.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-en-US/lesson_99.99.99/a-ballistic-missile-threat-has.aac",
+      "localPath": "assets/audio/en/threat_ballistic_missiles.mp3",
+      "size": 17856,
+      "sha256": "c26d1ac68aebdb319d871a2aeb0a4cb13536c538784a163a2661110a475564f1",
+      "generation": "1795817209559285",
+      "language": "en",
+      "text": "A ballistic missile threat has been reported.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-en-US/lesson_99.99.99/a-ballistic-missile-threat-has.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-en-US/lesson_99.99.99/a-cruise-missile-threat-has-be.aac",
+      "localPath": "assets/audio/en/threat_cruise_missiles.mp3",
+      "size": 16272,
+      "sha256": "5d6eb37b2eef08d0b93f75dc2c1998a8b195d8d408b04a1ed6ab42079c5bd075",
+      "generation": "1795817211615145",
+      "language": "en",
+      "text": "A cruise missile threat has been reported.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-en-US/lesson_99.99.99/a-cruise-missile-threat-has-be.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-en-US/lesson_99.99.99/a-drone-threat-has-been-report.aac",
+      "localPath": "assets/audio/en/threat_drones.mp3",
+      "size": 13824,
+      "sha256": "2e48e3909929c04fd5a54902c98cdc8af329186fea9c7db8fb7dfaa3a904e3dc",
+      "generation": "1795817202992960",
+      "language": "en",
+      "text": "A drone threat has been reported.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-en-US/lesson_99.99.99/a-drone-threat-has-been-report.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-en-US/lesson_99.99.99/a-missile-threat-has-been-repo.aac",
+      "localPath": "assets/audio/en/threat_unspecified_missiles.mp3",
+      "size": 13968,
+      "sha256": "3a858b228000c19243fdb938b701637c0275b7425842b4fa018e27c60d0d0794",
+      "generation": "1795817213768351",
+      "language": "en",
+      "text": "A missile threat has been reported.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-en-US/lesson_99.99.99/a-missile-threat-has-been-repo.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-en-US/lesson_99.99.99/a-scheduled-power-outage-will-.aac",
+      "localPath": "assets/audio/en/power_outage_in_5_minutes.mp3",
+      "size": 20736,
+      "sha256": "b12bd559ae7d98facbff4e5a7418c6269c56e336c54dee9d3595022e9a4d0325",
+      "generation": "1795817112711323",
+      "language": "en",
+      "text": "A scheduled power outage will begin in five minutes!",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-en-US/lesson_99.99.99/a-scheduled-power-outage-will-.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-en-US/lesson_99.99.99/a-threat-from-guided-aerial-bo.aac",
+      "localPath": "assets/audio/en/threat_guided_aerial_bombs.mp3",
+      "size": 20304,
+      "sha256": "d3e8a8a5bba0f012fdf8455a41744f69f2e1ae2e6f78937c5ccc0a2340dd7ff3",
+      "generation": "1795817220439336",
+      "language": "en",
+      "text": "A threat from guided aerial bombs has been reported.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-en-US/lesson_99.99.99/a-threat-from-guided-aerial-bo.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-en-US/lesson_99.99.99/according-to-the-schedule-powe.aac",
+      "localPath": "assets/audio/en/power_scheduled_restore_in_5_minutes.mp3",
+      "size": 27216,
+      "sha256": "bb7848f6fe607c371b64e5bca44d83ac47ea9c271a808cf42ea66242343237be",
+      "generation": "1795817140018486",
+      "language": "en",
+      "text": "According to the schedule, power should be restored in five minutes.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-en-US/lesson_99.99.99/according-to-the-schedule-powe.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-en-US/lesson_99.99.99/air-defense-activity-has-been-.aac",
+      "localPath": "assets/audio/en/activity_air_defense.mp3",
+      "size": 15408,
+      "sha256": "0d0288533e3227de0c4b5741f6d8f84c7253cfa8981b3e0a786209ff6e4176ea",
+      "generation": "1795817240548563",
+      "language": "en",
+      "text": "Air defense activity has been reported.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-en-US/lesson_99.99.99/air-defense-activity-has-been-.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-en-US/lesson_99.99.99/air-raid-alert-proceed-to-a-sh.aac",
+      "localPath": "assets/audio/en/alert_air_raid.mp3",
+      "size": 18432,
+      "sha256": "de15788adb58343607af55484ebac4fdab0294259f79e0848f21eb7b95c37ec3",
+      "generation": "1795817152621594",
+      "language": "en",
+      "text": "Air raid alert! Proceed to a shelter!",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-en-US/lesson_99.99.99/air-raid-alert-proceed-to-a-sh.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-en-US/lesson_99.99.99/alert-information-is-temporari.aac",
+      "localPath": "assets/audio/en/data_alerts_unavailable.mp3",
+      "size": 29952,
+      "sha256": "343a88ee0dede85ec0d6e907a28b47ff3e1852885eca5cb8214667ef5be9a1eb",
+      "generation": "1795817267371450",
+      "language": "en",
+      "text": "Alert information is temporarily unavailable. Check official updates.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-en-US/lesson_99.99.99/alert-information-is-temporari.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-en-US/lesson_99.99.99/alert-information-updates-have.aac",
+      "localPath": "assets/audio/en/data_alerts_resumed.mp3",
+      "size": 16416,
+      "sha256": "8a0036377fc1d129546ac5e88a5f9e8b930378c05269ae3333c09988db7a5701",
+      "generation": "1795817276998902",
+      "language": "en",
+      "text": "Alert information updates have resumed.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-en-US/lesson_99.99.99/alert-information-updates-have.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-en-US/lesson_99.99.99/an-aerial-threat-warning-is-in.aac",
+      "localPath": "assets/audio/en/alert_partial_region.mp3",
+      "size": 44928,
+      "sha256": "02774592728c65ce642a02deb614cf61e8a15df61ff39985de2814bc1506b711",
+      "generation": "1795817183827853",
+      "language": "en",
+      "text": "An aerial threat warning is in effect for part of your selected region. Check the status of your district or local community.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-en-US/lesson_99.99.99/an-aerial-threat-warning-is-in.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-en-US/lesson_99.99.99/an-air-raid-alert-has-been-iss.aac",
+      "localPath": "assets/audio/en/alert_district.mp3",
+      "size": 31248,
+      "sha256": "1457e3c76f9068b0bf63e91cf1c7e9a030f0bbb1279fb342868c95577a41f42d",
+      "generation": "1795817191001398",
+      "language": "en",
+      "text": "An air raid alert has been issued for your selected district! Proceed to a shelter!",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-en-US/lesson_99.99.99/an-air-raid-alert-has-been-iss.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-en-US/lesson_99.99.99/an-app-update-is-available.aac",
+      "localPath": "assets/audio/en/app_update_available.mp3",
+      "size": 12816,
+      "sha256": "2f77f1a3f15e01a6a23698e180d8cbfa780dbde43fdba3c06c74957be5639e97",
+      "generation": "1795817289387849",
+      "language": "en",
+      "text": "An app update is available.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-en-US/lesson_99.99.99/an-app-update-is-available.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-en-US/lesson_99.99.99/attention.aac",
+      "localPath": "assets/audio/en/common_attention.mp3",
+      "size": 11232,
+      "sha256": "a369498517cce89bd90fe5ceb4f2b69cee6ef8148e38ed176f910abfd4a56ab2",
+      "generation": "1795817097288077",
+      "language": "en",
+      "text": "Attention!",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-en-US/lesson_99.99.99/attention.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-en-US/lesson_99.99.99/audio-notifications-are-disabl.aac",
+      "localPath": "assets/audio/en/audio_disabled.mp3",
+      "size": 14976,
+      "sha256": "1b487316a3c6c77b0d1d3b37bff0a0d02b0f920ff7c466b1c3bb314b355dbadf",
+      "generation": "1795817307992253",
+      "language": "en",
+      "text": "Audio notifications are disabled.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-en-US/lesson_99.99.99/audio-notifications-are-disabl.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-en-US/lesson_99.99.99/audio-notifications-are-enable.aac",
+      "localPath": "assets/audio/en/audio_enabled.mp3",
+      "size": 14256,
+      "sha256": "919b5b971dd006479cd54c7cad7341272df67d2525768a16ca2727285407070d",
+      "generation": "1795817301847712",
+      "language": "en",
+      "text": "Audio notifications are enabled.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-en-US/lesson_99.99.99/audio-notifications-are-enable.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-en-US/lesson_99.99.99/blackout-tracker-has-been-upda.aac",
+      "localPath": "assets/audio/en/app_updated.mp3",
+      "size": 13968,
+      "sha256": "7bff38b2d367d429e3a78c7e92069b30a07744823a7a060546eb617cc61c06d6",
+      "generation": "1795817283257811",
+      "language": "en",
+      "text": "Blackout Tracker has been updated!",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-en-US/lesson_99.99.99/blackout-tracker-has-been-upda.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-en-US/lesson_99.99.99/red-threat-level-air-raid-aler.aac",
+      "localPath": "assets/audio/en/alert_red_level.mp3",
+      "size": 27360,
+      "sha256": "92bd880b71fd9c7bd36219c64432a6584463122e92468265324454d231eeef7f",
+      "generation": "1795817166889673",
+      "language": "en",
+      "text": "Red threat level. Air raid alert! Proceed to a shelter!",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-en-US/lesson_99.99.99/red-threat-level-air-raid-aler.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-en-US/lesson_99.99.99/sound-check-audio-notification.aac",
+      "localPath": "assets/audio/en/audio_sound_check.mp3",
+      "size": 21312,
+      "sha256": "8b6fff03668bf55ed86260f519acc4ec51e64a0bd62709d9734932441c15d19f",
+      "generation": "1795817295609944",
+      "language": "en",
+      "text": "Sound check. Audio notifications are working.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-en-US/lesson_99.99.99/sound-check-audio-notification.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-en-US/lesson_99.99.99/strategic-aircraft-activity-ha.aac",
+      "localPath": "assets/audio/en/activity_strategic_aircraft.mp3",
+      "size": 20448,
+      "sha256": "40e0b2881faa42e15e5646df3b877c945eb12b94f8f77ed39ca3053b7c296431",
+      "generation": "1795817229380920",
+      "language": "en",
+      "text": "Strategic aircraft activity has been reported.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-en-US/lesson_99.99.99/strategic-aircraft-activity-ha.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-en-US/lesson_99.99.99/tactical-aircraft-activity-has.aac",
+      "localPath": "assets/audio/en/activity_tactical_aircraft.mp3",
+      "size": 19296,
+      "sha256": "553a1e70fe8276c9e6cd5f5b57a5b5a38f09bc028c1a0a0ade33a57a78f406d8",
+      "generation": "1795817222567097",
+      "language": "en",
+      "text": "Tactical aircraft activity has been reported.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-en-US/lesson_99.99.99/tactical-aircraft-activity-has.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-en-US/lesson_99.99.99/the-air-raid-alert-has-ended-f.aac",
+      "localPath": "assets/audio/en/alert_air_raid_ended.mp3",
+      "size": 19296,
+      "sha256": "7adda3563a3cb6133ac7646ea47e3e48db7be3d2850193a2c64768ed192af5a4",
+      "generation": "1795817253799457",
+      "language": "en",
+      "text": "The air raid alert has ended for your selected area.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-en-US/lesson_99.99.99/the-air-raid-alert-has-ended-f.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-en-US/lesson_99.99.99/the-air-raid-alert-remains-in-.aac",
+      "localPath": "assets/audio/en/alert_ongoing.mp3",
+      "size": 24192,
+      "sha256": "617c5eb6e29acb0b9a0f0d5d719e4b2c8b000b83fdddac70b16bda141338066e",
+      "generation": "1795817247200602",
+      "language": "en",
+      "text": "The air raid alert remains in effect. Stay in a shelter.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-en-US/lesson_99.99.99/the-air-raid-alert-remains-in-.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-en-US/lesson_99.99.99/the-power-outage-schedule-has-.aac",
+      "localPath": "assets/audio/en/power_schedule_changed.mp3",
+      "size": 28656,
+      "sha256": "6c3db3d3008d64b7eadc8d67c70c269f5086449b71df163c982457f79fc1f7b2",
+      "generation": "1795817128758307",
+      "language": "en",
+      "text": "The power outage schedule has changed. Check the updated schedule in the app.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-en-US/lesson_99.99.99/the-power-outage-schedule-has-.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-en-US/lesson_99.99.99/the-power-outage-schedule-is-t.aac",
+      "localPath": "assets/audio/en/power_schedule_unavailable.mp3",
+      "size": 21456,
+      "sha256": "f6ec3635d662fb1d55ae28853baf63c9933a2aa2d1333f14e146985d68b7484e",
+      "generation": "1795817135843188",
+      "language": "en",
+      "text": "The power outage schedule is temporarily unavailable.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-en-US/lesson_99.99.99/the-power-outage-schedule-is-t.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-en-US/lesson_99.99.99/the-scheduled-power-outage-is-.aac",
+      "localPath": "assets/audio/en/power_scheduled_outage_start.mp3",
+      "size": 19296,
+      "sha256": "c8503c882393b60c2c637d5e179d84bcfaa42d31a93a164fd28a738d1b40ecd4",
+      "generation": "1795817121889955",
+      "language": "en",
+      "text": "The scheduled power outage is due to begin now!",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-en-US/lesson_99.99.99/the-scheduled-power-outage-is-.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-en-US/lesson_99.99.99/the-scheduled-power-outage-per.aac",
+      "localPath": "assets/audio/en/power_scheduled_outage_end.mp3",
+      "size": 17856,
+      "sha256": "59f1386fc23864d84964c6e2653aaa88d0154ea1366b746a505e911a42831f16",
+      "generation": "1795817146335905",
+      "language": "en",
+      "text": "The scheduled power outage period has ended.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-en-US/lesson_99.99.99/the-scheduled-power-outage-per.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-en-US/lesson_99.99.99/the-takeoff-of-a-mig-thirtyone.aac",
+      "localPath": "assets/audio/en/activity_mig31k_takeoff.mp3",
+      "size": 24192,
+      "sha256": "3da1f42107f065bf2a956029821177abeab0ab48fa843f8b4b69b96674b3cbdd",
+      "generation": "1795817233719246",
+      "language": "en",
+      "text": "The takeoff of a MiG thirty-one K aircraft has been reported.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-en-US/lesson_99.99.99/the-takeoff-of-a-mig-thirtyone.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-en-US/lesson_99.99.99/the-threat-level-has-been-rais.aac",
+      "localPath": "assets/audio/en/alert_level_raised_to_red.mp3",
+      "size": 33552,
+      "sha256": "4a34f37c0ee1514a80a4df58202a1d88e78d5dcf48209f2809eac075e4a4901a",
+      "generation": "1795817173984839",
+      "language": "en",
+      "text": "The threat level has been raised to red. Air raid alert! Proceed to a shelter!",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-en-US/lesson_99.99.99/the-threat-level-has-been-rais.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-en-US/lesson_99.99.99/the-threat-warning-has-been-li.aac",
+      "localPath": "assets/audio/en/alert_warning_lifted.mp3",
+      "size": 21024,
+      "sha256": "7b9d997a73e3d18f16aa2bb769c3dff51ff081199c2e5cf35d73de4730d21e04",
+      "generation": "1795817260590749",
+      "language": "en",
+      "text": "The threat warning has been lifted for your selected area.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-en-US/lesson_99.99.99/the-threat-warning-has-been-li.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-en-US/lesson_99.99.99/yellow-threat-level-a-warning-.aac",
+      "localPath": "assets/audio/en/alert_yellow_level.mp3",
+      "size": 43200,
+      "sha256": "63f671364ec00d3b6b45eb9d26a1f2c174d3643823e82750725b1f46cc181b4b",
+      "generation": "1795817159370342",
+      "language": "en",
+      "text": "Yellow threat level. A warning of a potential aerial threat is in effect. Follow official updates.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-en-US/lesson_99.99.99/yellow-threat-level-a-warning-.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-de-DE/lesson_99.99.96/der-zeitplan-fr-stromabschaltu.aac",
+      "localPath": "assets/audio/de/power_schedule_unavailable.mp3",
+      "size": 32400,
+      "sha256": "a92a56b4782edbd05aefa691cf432acd5242e5e73bdb755cbb84fb0b9eca2b5e",
+      "generation": "1795817367790064",
+      "language": "de",
+      "text": "Der Zeitplan für Stromabschaltungen ist vorübergehend nicht verfügbar.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-de-DE/lesson_99.99.96/der-zeitplan-fr-stromabschaltu.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-de-DE/lesson_99.99.96/es-wurde-eine-bedrohung-durch-.aac",
+      "localPath": "assets/audio/de/threat_guided_aerial_bombs.mp3",
+      "size": 25776,
+      "sha256": "53b83f22a84f2308e554e09f053f4ca1096adc871359f9d6caf72f626d6cce7c",
+      "generation": "1795817363310392",
+      "language": "de",
+      "text": "Es wurde eine Bedrohung durch gelenkte Fliegerbomben gemeldet.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-de-DE/lesson_99.99.96/es-wurde-eine-bedrohung-durch-.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-de-DE/lesson_99.99.97/es-wurde-eine-bedrohung-durch-.aac",
+      "localPath": "assets/audio/de/threat_cruise_missiles.mp3",
+      "size": 25920,
+      "sha256": "3735c8c56e478a8b632e8c3650166a6cd0026ab2bb47992eced171f274642d9a",
+      "generation": "1795817353738555",
+      "language": "de",
+      "text": "Es wurde eine Bedrohung durch Marschflugkörper gemeldet.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-de-DE/lesson_99.99.97/es-wurde-eine-bedrohung-durch-.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-de-DE/lesson_99.99.98/die-warnmeldungen-sind-veralte.aac",
+      "localPath": "assets/audio/de/data_alerts_outdated.mp3",
+      "size": 58896,
+      "sha256": "54b8401ac8449842bf8a61659624c05e42373eb5f676957db735acca431226a6",
+      "generation": "1795817341858888",
+      "language": "de",
+      "text": "Die Warnmeldungen sind veraltet. Der aktuelle Status ist nicht bestätigt. Prüfen Sie die offiziellen Meldungen.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-de-DE/lesson_99.99.98/die-warnmeldungen-sind-veralte.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-de-DE/lesson_99.99.98/die-warnstufe-wurde-auf-gelb-g.aac",
+      "localPath": "assets/audio/de/alert_level_changed_to_yellow.mp3",
+      "size": 59184,
+      "sha256": "1658ae6f905bea00151e8ce30495a116fa122a0b5d6f340ebea46b67cafdece2",
+      "generation": "1795817328355530",
+      "language": "de",
+      "text": "Die Warnstufe wurde auf Gelb geändert. Eine Gefahrenwarnung besteht weiterhin. Beachten Sie die offiziellen Meldungen.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-de-DE/lesson_99.99.98/die-warnstufe-wurde-auf-gelb-g.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-de-DE/lesson_99.99.98/es-wurde-eine-bedrohung-durch-.aac",
+      "localPath": "assets/audio/de/threat_ballistic_missiles.mp3",
+      "size": 26064,
+      "sha256": "86e018e9a1bd25d65d47e50bd431fe5425a7c53e30adc0a0d32020ad0ef503a5",
+      "generation": "1795817332683200",
+      "language": "de",
+      "text": "Es wurde eine Bedrohung durch ballistische Raketen gemeldet.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-de-DE/lesson_99.99.98/es-wurde-eine-bedrohung-durch-.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-de-DE/lesson_99.99.99/achtung.aac",
+      "localPath": "assets/audio/de/common_attention.mp3",
+      "size": 11232,
+      "sha256": "744177724bc1359b93dfcd5ccef517965e01e741c6c61454c92f903a1fa708db",
+      "generation": "1795817099454968",
+      "language": "de",
+      "text": "Achtung!",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-de-DE/lesson_99.99.99/achtung.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-de-DE/lesson_99.99.99/audiobenachrichtigungen-sind-a.aac",
+      "localPath": "assets/audio/de/audio_enabled.mp3",
+      "size": 21168,
+      "sha256": "3dcf62c6f63ce6eafe2cb819d386411a1ad015d5ac7c3d81420774e1a3ec8c2d",
+      "generation": "1795817303907927",
+      "language": "de",
+      "text": "Audiobenachrichtigungen sind aktiviert.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-de-DE/lesson_99.99.99/audiobenachrichtigungen-sind-a.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-de-DE/lesson_99.99.99/audiobenachrichtigungen-sind-d.aac",
+      "localPath": "assets/audio/de/audio_disabled.mp3",
+      "size": 22752,
+      "sha256": "55f533bf036c1b781a3dde553b7af6ba766f7a3d523bf63650e1a9b4071e1c14",
+      "generation": "1795817310035595",
+      "language": "de",
+      "text": "Audiobenachrichtigungen sind deaktiviert.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-de-DE/lesson_99.99.99/audiobenachrichtigungen-sind-d.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-de-DE/lesson_99.99.99/blackout-tracker-wurde-aktuali.aac",
+      "localPath": "assets/audio/de/app_updated.mp3",
+      "size": 19872,
+      "sha256": "26a880a98ded83b14f21a5f3e21f5a7b300aceff429030a675a606980c8cfcb6",
+      "generation": "1795817285339529",
+      "language": "de",
+      "text": "Blackout Tracker wurde aktualisiert!",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-de-DE/lesson_99.99.99/blackout-tracker-wurde-aktuali.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-de-DE/lesson_99.99.99/der-geplante-zeitraum-der-stro.aac",
+      "localPath": "assets/audio/de/power_scheduled_outage_end.mp3",
+      "size": 25920,
+      "sha256": "8b444066b5db75891a4a20d616e77f52f991064d543a35b01b964a9e01ba6b94",
+      "generation": "1795817148429107",
+      "language": "de",
+      "text": "Der geplante Zeitraum der Stromabschaltung ist beendet.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-de-DE/lesson_99.99.99/der-geplante-zeitraum-der-stro.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-de-DE/lesson_99.99.99/der-luftalarm-besteht-weiterhi.aac",
+      "localPath": "assets/audio/de/alert_ongoing.mp3",
+      "size": 31824,
+      "sha256": "4a2b0b1ffbffc8d35cfdbfed6b408e7fd051b042f024ce0155b137f0243a4a8b",
+      "generation": "1795817249421952",
+      "language": "de",
+      "text": "Der Luftalarm besteht weiterhin. Bleiben Sie im Schutzraum.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-de-DE/lesson_99.99.99/der-luftalarm-besteht-weiterhi.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-de-DE/lesson_99.99.99/der-luftalarm-fr-das-ausgewhlt.aac",
+      "localPath": "assets/audio/de/alert_air_raid_ended.mp3",
+      "size": 26208,
+      "sha256": "582a7ff25f804de876f40ceba367e6532f454afe1948d0ccd749539a14b6c9f2",
+      "generation": "1795817256040564",
+      "language": "de",
+      "text": "Der Luftalarm für das ausgewählte Gebiet wurde aufgehoben.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-de-DE/lesson_99.99.99/der-luftalarm-fr-das-ausgewhlt.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-de-DE/lesson_99.99.99/der-start-eines-flugzeugs-vom-.aac",
+      "localPath": "assets/audio/de/activity_mig31k_takeoff.mp3",
+      "size": 35856,
+      "sha256": "c8dac1b7b68ce242c11ed83e29f0709e058dc0bd834112865ced9a1e75743f98",
+      "generation": "1795817236054390",
+      "language": "de",
+      "text": "Der Start eines Flugzeugs vom Typ MiG einunddreißig K wurde gemeldet.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-de-DE/lesson_99.99.99/der-start-eines-flugzeugs-vom-.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-de-DE/lesson_99.99.99/der-zeitplan-fr-stromabschaltu.aac",
+      "localPath": "assets/audio/de/power_schedule_changed.mp3",
+      "size": 49968,
+      "sha256": "d122e9bf1d9cbc5db2326298b17172fa5071bc531184639edf66530bd2637d91",
+      "generation": "1795817131190267",
+      "language": "de",
+      "text": "Der Zeitplan für Stromabschaltungen hat sich geändert. Prüfen Sie den aktualisierten Zeitplan in der App.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-de-DE/lesson_99.99.99/der-zeitplan-fr-stromabschaltu.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-de-DE/lesson_99.99.99/die-aktualisierung-der-warnmel.aac",
+      "localPath": "assets/audio/de/data_alerts_resumed.mp3",
+      "size": 25344,
+      "sha256": "4804b69d5dd05cb110836766107da24bb5d788148fcf52c7819396885d091d8d",
+      "generation": "1795817279136014",
+      "language": "de",
+      "text": "Die Aktualisierung der Warnmeldungen wurde wieder aufgenommen.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-de-DE/lesson_99.99.99/die-aktualisierung-der-warnmel.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-de-DE/lesson_99.99.99/die-gefahrenwarnung-fr-das-aus.aac",
+      "localPath": "assets/audio/de/alert_warning_lifted.mp3",
+      "size": 28224,
+      "sha256": "a3fdaf6378d67cc7cb97b0127e1a661735e30d2a3056b2c1ca993067a6748e2b",
+      "generation": "1795817262876984",
+      "language": "de",
+      "text": "Die Gefahrenwarnung für das ausgewählte Gebiet wurde aufgehoben.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-de-DE/lesson_99.99.99/die-gefahrenwarnung-fr-das-aus.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-de-DE/lesson_99.99.99/die-warnmeldungen-sind-vorberg.aac",
+      "localPath": "assets/audio/de/data_alerts_unavailable.mp3",
+      "size": 45216,
+      "sha256": "4af8fb5bf153059a9fee44bd21d91b1f691d7b60236dc5fee9011f3a69fc29ae",
+      "generation": "1795817269851487",
+      "language": "de",
+      "text": "Die Warnmeldungen sind vorübergehend nicht verfügbar. Prüfen Sie die offiziellen Meldungen.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-de-DE/lesson_99.99.99/die-warnmeldungen-sind-vorberg.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-de-DE/lesson_99.99.99/die-warnstufe-wurde-auf-rot-er.aac",
+      "localPath": "assets/audio/de/alert_level_raised_to_red.mp3",
+      "size": 49248,
+      "sha256": "4c347ae1199e4267b049dd73e832813664d427afdef2777c8768d694b8b2ace8",
+      "generation": "1795817176459143",
+      "language": "de",
+      "text": "Die Warnstufe wurde auf Rot erhöht. Luftalarm! Begeben Sie sich in einen Schutzraum!",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-de-DE/lesson_99.99.99/die-warnstufe-wurde-auf-rot-er.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-de-DE/lesson_99.99.99/ein-update-fr-die-app-ist-verf.aac",
+      "localPath": "assets/audio/de/app_update_available.mp3",
+      "size": 19872,
+      "sha256": "09ab2bb333db657297527d2298db6b0c64d5881e711b588d1a47ba552a4c4b32",
+      "generation": "1795817291503535",
+      "language": "de",
+      "text": "Ein Update für die App ist verfügbar.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-de-DE/lesson_99.99.99/ein-update-fr-die-app-ist-verf.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-de-DE/lesson_99.99.99/es-wurde-eine-bedrohung-durch-.aac",
+      "localPath": "assets/audio/de/threat_drones.mp3",
+      "size": 22608,
+      "sha256": "a757a8d9b65395e2dbfb19c7edce9ad9dd8978ff15673019c776ddf5a96699ba",
+      "generation": "1795817205213441",
+      "language": "de",
+      "text": "Es wurde eine Bedrohung durch Drohnen gemeldet.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-de-DE/lesson_99.99.99/es-wurde-eine-bedrohung-durch-.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-de-DE/lesson_99.99.99/es-wurde-eine-raketenbedrohung.aac",
+      "localPath": "assets/audio/de/threat_unspecified_missiles.mp3",
+      "size": 21168,
+      "sha256": "cace17a19f3e5d4b4b4a2b2f89ebb9484593d96fdded7bc61681668ffc2bbe37",
+      "generation": "1795817216045659",
+      "language": "de",
+      "text": "Es wurde eine Raketenbedrohung gemeldet.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-de-DE/lesson_99.99.99/es-wurde-eine-raketenbedrohung.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-de-DE/lesson_99.99.99/es-wurden-aktivitten-der-lufta.aac",
+      "localPath": "assets/audio/de/activity_air_defense.mp3",
+      "size": 23184,
+      "sha256": "7b59a10186cd13b845277bd64ba97a97c03161ab1a9a22a955231f9289e39dd0",
+      "generation": "1795817242802908",
+      "language": "de",
+      "text": "Es wurden Aktivitäten der Luftabwehr gemeldet.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-de-DE/lesson_99.99.99/es-wurden-aktivitten-der-lufta.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-de-DE/lesson_99.99.99/es-wurden-aktivitten-strategis.aac",
+      "localPath": "assets/audio/de/activity_strategic_aircraft.mp3",
+      "size": 30816,
+      "sha256": "9f32a7d40c49a36c839c0f9228e7232b5fe97d0694ffa7480d8ac85581280e9f",
+      "generation": "1795817231643486",
+      "language": "de",
+      "text": "Es wurden Aktivitäten strategischer Militärflugzeuge gemeldet.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-de-DE/lesson_99.99.99/es-wurden-aktivitten-strategis.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-de-DE/lesson_99.99.99/es-wurden-aktivitten-taktische.aac",
+      "localPath": "assets/audio/de/activity_tactical_aircraft.mp3",
+      "size": 29808,
+      "sha256": "38a104ba15860c745d52a4662f116ad6dd0199e3a2f6db862ab4472e71f9b4b6",
+      "generation": "1795817224919156",
+      "language": "de",
+      "text": "Es wurden Aktivitäten taktischer Militärflugzeuge gemeldet.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-de-DE/lesson_99.99.99/es-wurden-aktivitten-taktische.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-de-DE/lesson_99.99.99/fr-einen-teil-der-ausgewhlten-.aac",
+      "localPath": "assets/audio/de/alert_partial_region.mp3",
+      "size": 63360,
+      "sha256": "9e71924ed957194c447189be6144036afa8e97c91e30d760b661a14956f2f0e9",
+      "generation": "1795817186311306",
+      "language": "de",
+      "text": "Für einen Teil der ausgewählten Region besteht eine Warnung vor einer Gefahr aus der Luft. Prüfen Sie den Status Ihres Bezirks oder Ihrer Gemeinde.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-de-DE/lesson_99.99.99/fr-einen-teil-der-ausgewhlten-.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-de-DE/lesson_99.99.99/gelbe-warnstufe-es-besteht-ein.aac",
+      "localPath": "assets/audio/de/alert_yellow_level.mp3",
+      "size": 61920,
+      "sha256": "31073acc16667c736ad46262acaf98cf873a0a2b3d9cebf89a39211df3571b89",
+      "generation": "1795817161908403",
+      "language": "de",
+      "text": "Gelbe Warnstufe. Es besteht eine Vorwarnung vor einer möglichen Gefahr aus der Luft. Beachten Sie die offiziellen Meldungen.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-de-DE/lesson_99.99.99/gelbe-warnstufe-es-besteht-ein.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-de-DE/lesson_99.99.99/im-ausgewhlten-bezirk-wurde-lu.aac",
+      "localPath": "assets/audio/de/alert_district.mp3",
+      "size": 45504,
+      "sha256": "0072fec0eec0f9be9146640115aefef484c4ce0d01ca91dc252a118be07f1275",
+      "generation": "1795817193444545",
+      "language": "de",
+      "text": "Im ausgewählten Bezirk wurde Luftalarm ausgelöst! Begeben Sie sich in einen Schutzraum!",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-de-DE/lesson_99.99.99/im-ausgewhlten-bezirk-wurde-lu.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-de-DE/lesson_99.99.99/in-der-ausgewhlten-gemeinde-wu.aac",
+      "localPath": "assets/audio/de/alert_community.mp3",
+      "size": 46368,
+      "sha256": "c2b90b8c3c30fb4040834f21082442e902bf9af4f79a4a8a30d3f60889d4340b",
+      "generation": "1795817198411750",
+      "language": "de",
+      "text": "In der ausgewählten Gemeinde wurde Luftalarm ausgelöst! Begeben Sie sich in einen Schutzraum!",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-de-DE/lesson_99.99.99/in-der-ausgewhlten-gemeinde-wu.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-de-DE/lesson_99.99.99/in-fnf-minuten-beginnt-eine-ge.aac",
+      "localPath": "assets/audio/de/power_outage_in_5_minutes.mp3",
+      "size": 27216,
+      "sha256": "5aba8c21849e17149c2191593de158f7f6b3ab6abc4dd184155ad876959469af",
+      "generation": "1795817114932916",
+      "language": "de",
+      "text": "In fünf Minuten beginnt eine geplante Stromabschaltung!",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-de-DE/lesson_99.99.99/in-fnf-minuten-beginnt-eine-ge.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-de-DE/lesson_99.99.99/in-zehn-minuten-beginnt-eine-g.aac",
+      "localPath": "assets/audio/de/power_outage_in_10_minutes.mp3",
+      "size": 26640,
+      "sha256": "dcece9cfa2650682401872c74b0085a201a83dde3be62464f5376307b8a0ed75",
+      "generation": "1795817119745669",
+      "language": "de",
+      "text": "In zehn Minuten beginnt eine geplante Stromabschaltung!",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-de-DE/lesson_99.99.99/in-zehn-minuten-beginnt-eine-g.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-de-DE/lesson_99.99.99/laut-zeitplan-beginnt-die-gepl.aac",
+      "localPath": "assets/audio/de/power_scheduled_outage_start.mp3",
+      "size": 26784,
+      "sha256": "08420e49e36441c010f5a58acab0883e6235e1d16ebff45d8458feba7b2bbdb9",
+      "generation": "1795817124150994",
+      "language": "de",
+      "text": "Laut Zeitplan beginnt die geplante Stromabschaltung jetzt!",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-de-DE/lesson_99.99.99/laut-zeitplan-beginnt-die-gepl.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-de-DE/lesson_99.99.99/laut-zeitplan-sollte-die-strom.aac",
+      "localPath": "assets/audio/de/power_scheduled_restore_in_5_minutes.mp3",
+      "size": 37152,
+      "sha256": "10e895362eca4386ea4435ef7261cc8e96e2c24761d546c9ca27fc3d84efa63d",
+      "generation": "1795817142156028",
+      "language": "de",
+      "text": "Laut Zeitplan sollte die Stromversorgung in fünf Minuten wiederhergestellt werden.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-de-DE/lesson_99.99.99/laut-zeitplan-sollte-die-strom.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-de-DE/lesson_99.99.99/luftalarm-begeben-sie-sich-in-.aac",
+      "localPath": "assets/audio/de/alert_air_raid.mp3",
+      "size": 30384,
+      "sha256": "f8adca330ab219169647f20506e94200b7d67e15434cb901a5a930cb05eaf298",
+      "generation": "1795817154859081",
+      "language": "de",
+      "text": "Luftalarm! Begeben Sie sich in einen Schutzraum!",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-de-DE/lesson_99.99.99/luftalarm-begeben-sie-sich-in-.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-de-DE/lesson_99.99.99/rote-warnstufe-luftalarm-begeb.aac",
+      "localPath": "assets/audio/de/alert_red_level.mp3",
+      "size": 43344,
+      "sha256": "2617a6e30612e178bd117d3d055b52fc9a52cf9716d6ed7c73b942588aadd905",
+      "generation": "1795817169340408",
+      "language": "de",
+      "text": "Rote Warnstufe. Luftalarm! Begeben Sie sich in einen Schutzraum!",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-de-DE/lesson_99.99.99/rote-warnstufe-luftalarm-begeb.aac"
+    },
+    {
+      "source": "voiceAction/integration_course-de-DE/lesson_99.99.99/soundtest-die-audiobenachricht.aac",
+      "localPath": "assets/audio/de/audio_sound_check.mp3",
+      "size": 32400,
+      "sha256": "1e228ce82dd4a79cd9516d9f3e42b59242619e486d6ac28aa300ccb10c470232",
+      "generation": "1795817297722524",
+      "language": "de",
+      "text": "Soundtest. Die Audiobenachrichtigungen funktionieren.",
+      "previousLocalPath": "assets/audio/voiceAction-v2/integration_course-de-DE/lesson_99.99.99/soundtest-die-audiobenachricht.aac"
+    }
+  ],
+  "missing": [],
+  "unexpected": []
+}

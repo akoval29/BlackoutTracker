@@ -6,7 +6,7 @@ import sys
 dest = Path(sys.argv[1]) if len(sys.argv) > 1 else Path('dist/BlackoutTracker/licenses')
 dest.mkdir(parents=True, exist_ok=True)
 shutil.copytree('licenses', dest, dirs_exist_ok=True)
-for package in ('PySide6_Essentials', 'shiboken6', 'tzdata', 'pyinstaller'):
+for package in ('PySide6_Essentials', 'PySide6_Addons', 'shiboken6', 'tzdata', 'pyinstaller'):
     dist = distribution(package)
     for file in dist.files or []:
         if any(s in str(file).lower() for s in ('license', 'copying')) and dist.locate_file(file).is_file():

@@ -25,6 +25,8 @@ class SideSelectTests(unittest.TestCase):
         panel.saved.connect(saved.append)
         try:
             for selector in (panel.region_selector, panel.queue_selector, panel.position):
+                panel.tabs.setCurrentIndex(2 if selector is panel.position else 0)
+                self.app.processEvents()
                 selector.showPopup()
                 QTest.qWait(400)
                 self.assertTrue(selector.menu.isVisible())
@@ -82,6 +84,8 @@ class SideSelectTests(unittest.TestCase):
         panel.show()
         try:
             selector = panel.position
+            panel.tabs.setCurrentIndex(2)
+            self.app.processEvents()
             self.assertEqual([selector.itemData(i) for i in range(selector.count())],
                              ['top-left', 'top', 'top-right', 'bottom-left', 'bottom', 'bottom-right'])
             selector.showPopup()
@@ -104,6 +108,8 @@ class SideSelectTests(unittest.TestCase):
         self.app.processEvents()
         try:
             for selector in (panel.region_selector, panel.queue_selector, panel.position):
+                panel.tabs.setCurrentIndex(2 if selector is panel.position else 0)
+                self.app.processEvents()
                 selector.showPopup()
                 menu = selector.menu
                 canvas = QRect(menu.target)

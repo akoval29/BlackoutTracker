@@ -48,6 +48,7 @@ class CountdownWidget(QWidget):
         self.timer.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
         layout.addWidget(self.timer)
         self.ripple = RippleAnimation(self)
+        self.audio_active = False
         self.last_position = None
         self.position_animation = QPropertyAnimation(self, b'pos', self)
         self.position_animation.setDuration(500)
@@ -79,6 +80,25 @@ class CountdownWidget(QWidget):
     def animate_text(self, scale):
         self.timer.scale = scale
         self.timer.update()
+
+    def set_audio_active(self, active):
+        if self.audio_active == active:
+            return
+        self.audio_active = active
+        if active and self.isVisible():
+            self.start_audio_ripple()
+        elif not active:
+            self.ripple.stop()
+
+    def start_audio_ripple(self):
+        self.ripple.start(self.geometry().center(), self.timer.ink,
+                          bool(self.windowFlags() & Qt.WindowType.WindowStaysOnTopHint), repeat=True)
+
+    def moveEvent(self, event):
+        super().moveEvent(event)
+        if getattr(self, 'audio_active', False):
+            center = self.geometry().center()
+            self.ripple.move(center.x() - 160, center.y() - 160)
 
     def present(self, label, countdown, color, position='top-right'):
         appearing = not self.isVisible()
@@ -129,8 +149,15 @@ class CountdownWidget(QWidget):
             self.text_animation.stop()
             self.animate_text(0.0)
             self.text_animation.start()
-            self.ripple.start(self.geometry().center(), color,
-                              bool(self.windowFlags() & Qt.WindowType.WindowStaysOnTopHint))
+            if self.audio_active:
+                self.start_audio_ripple()
+            else:
+                self.ripple.start(self.geometry().center(), color,
+                                  bool(self.windowFlags() & Qt.WindowType.WindowStaysOnTopHint))
+        elif self.audio_active:
+            self.ripple.color = QColor(color)
+            if not self.ripple.isVisible():
+                self.start_audio_ripple()
 
     def hideEvent(self, event):
         self.ripple.stop()

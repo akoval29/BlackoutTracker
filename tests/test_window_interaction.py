@@ -16,6 +16,61 @@ class WindowInteractionTests(unittest.TestCase):
     def setUpClass(cls):
         cls.app = QApplication.instance() or QApplication([])
 
+    def test_repeated_launch_reveals_compact_window(self):
+        with tempfile.TemporaryDirectory() as directory, patch.object(MainWindow, 'refresh'), patch('blackout_tracker.ui.main_window.QSystemTrayIcon.isSystemTrayAvailable', return_value=True):
+            window = MainWindow(Path(directory), '6.1')
+            try:
+                for state in ('hidden', 'expanded', 'settings', 'hiding'):
+                    if state == 'hidden':
+                        window.hide()
+                    else:
+                        window.toggle_expanded()
+                        window.panel_animation.setCurrentTime(260)
+                        if state == 'settings':
+                            window.configure()
+                            window.panel_animation.setCurrentTime(260)
+                        elif state == 'hiding':
+                            window.hide_to_tray()
+                            window.panel_animation.setCurrentTime(130)
+                    window.reveal_compact()
+                    window.outside_clicks.stop()
+                    window.panel_animation.setCurrentTime(260)
+                    self.assertTrue(window.isVisible(), state)
+                    self.assertFalse(window.expanded, state)
+                    self.assertFalse(window.settings_open, state)
+                    self.assertFalse(window.hiding_to_tray, state)
+                    self.assertTrue(window.details.isHidden(), state)
+                    self.assertEqual(window.drawer_reveal, 0, state)
+            finally:
+                window.hide()
+                window.overlay.hide()
+                window.tray.hide()
+                window.deleteLater()
+
+    def test_audio_temporarily_reveals_widget_and_restores_preferences(self):
+        with tempfile.TemporaryDirectory() as directory, patch.object(MainWindow, 'refresh'):
+            window = MainWindow(Path(directory), '6.1')
+            try:
+                window.widget_manually_enabled = False
+                window.preferences['overlay_enabled'] = False
+                window.tick()
+                self.assertFalse(window.overlay.isVisible())
+                window.audio_player._set_activity(True)
+                self.assertTrue(window.overlay.isVisible())
+                self.assertEqual(window.overlay.ripple.panel_animation.loopCount(), -1)
+                self.assertTrue(window.overlay.ripple.isVisible())
+                self.assertFalse(window.preferences['overlay_enabled'])
+                window.audio_player._set_activity(False)
+                self.assertFalse(window.overlay.ripple.isVisible())
+                self.assertFalse(window.overlay.isVisible())
+                self.assertFalse(window.preferences['overlay_enabled'])
+            finally:
+                window.audio_player._set_activity(False)
+                window.hide()
+                window.overlay.hide()
+                window.tray.hide()
+                window.deleteLater()
+
     def test_panel_clicks_outside_click_and_reappearance(self):
         with tempfile.TemporaryDirectory() as directory, patch.object(MainWindow, 'refresh'), patch('blackout_tracker.ui.main_window.QSystemTrayIcon.isSystemTrayAvailable', return_value=True):
             window = MainWindow(Path(directory), '6.1')

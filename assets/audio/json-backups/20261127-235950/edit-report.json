@@ -1,0 +1,25 @@
+{
+  "changed": [
+    "lesson_99.99.96.json",
+    "lesson_99.99.97.json",
+    "lesson_99.99.98.json",
+    "lesson_99.99.99.json"
+  ],
+  "otherFilesUnchanged": 95,
+  "backup": "D:\\projects - work\\BlackoutTracker\\assets\\audio\\json-backups\\20261127-235950",
+  "recordings": 108,
+  "movesForCollisions": [
+    {
+      "language": "de",
+      "from": "lesson_99.99.99.json",
+      "to": "lesson_99.99.96.json"
+    }
+  ],
+  "lessons": {
+    "lesson_99.99.99.json": 93,
+    "lesson_99.99.98.json": 10,
+    "lesson_99.99.96.json": 3,
+    "lesson_99.99.97.json": 2
+  },
+  "filenameCollisions": 0
+}

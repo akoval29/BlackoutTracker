@@ -2,11 +2,11 @@ from blackout_tracker.ui.theme import GRADIENT_DIVIDER_STYLE
 import sys
 from PySide6.QtCore import Signal, Qt, QSize
 from PySide6.QtGui import QIcon, QPixmap, QPainter, QPen, QColor
-from PySide6.QtWidgets import QWidget, QGridLayout, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QFrame, QCheckBox, QSpinBox, QSizePolicy
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QFrame, QCheckBox, QSpinBox, QSizePolicy, QTabBar, QButtonGroup
 import blackout_tracker.windows_autostart as autostart
 from blackout_tracker.ui.side_selector import SideSelector
 from blackout_tracker.regions import DEFAULT_REGION, REGIONS, groups_for, valid_group
-from blackout_tracker.audio import play_warning
+from blackout_tracker.audio import play_warning, play_message
 from blackout_tracker.version import VERSION
 
 
@@ -22,18 +22,32 @@ class SettingsPanel(QWidget):
         layout.setSpacing(7)
         title = QLabel('Налаштування')
         title.setStyleSheet('font-size: 20px; font-weight: 600;')
-        layout.addWidget(title)
+        header = QHBoxLayout()
+        header.setSpacing(14)
+        header.addWidget(title)
+        self.tabs = QTabBar()
+        self.tabs.setAccessibleName('Розділи налаштувань')
+        self.tabs.setExpanding(False)
+        self.tabs.setUsesScrollButtons(True)
+        self.tabs.setElideMode(Qt.TextElideMode.ElideNone)
+        self.tabs.setDrawBase(False)
+        self.tabs.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
+        self.tabs.setStyleSheet(
+            'QTabBar { background: transparent; }'
+            'QTabBar::tab { color: #c0ccdc; background: transparent; font-size: 12px; '
+            'padding: 8px 10px; border-bottom: 2px solid transparent; }'
+            'QTabBar::tab:selected { color: #86e9cf; background: #304158; border-bottom-color: #86e9cf; }'
+            'QTabBar::tab:hover { background: #34465e; }')
+        for name in ('Графік', 'Звук', 'Віджет', 'Запуск', 'Оновлення', 'Про нас'):
+            self.tabs.addTab(name)
+        header.addWidget(self.tabs, 1)
+        layout.addLayout(header)
         line = QFrame()
         line.setFixedHeight(1)
         line.setStyleSheet(GRADIENT_DIVIDER_STYLE)
         layout.addWidget(line)
         self.root_layout = layout
-        self.columns = QGridLayout()
-        self.columns.setHorizontalSpacing(14)
-        self.columns.setVerticalSpacing(14)
         self.section_cards = {}
-        self.wide_columns = None
-        self.root_layout.addLayout(self.columns)
 
         def section(name, order):
             card = QFrame()
@@ -47,7 +61,8 @@ class SettingsPanel(QWidget):
             label.setStyleSheet('color: #e4edf9; font-size: 14px; font-weight: 600;')
             body.addWidget(label)
             self.section_cards[order] = card
-            self.columns.addWidget(card, order, 0)
+            self.root_layout.addWidget(card)
+            card.setVisible(order == self.tabs.currentIndex())
             return body
 
         layout = section('Графік відключень', 0)
@@ -111,21 +126,55 @@ class SettingsPanel(QWidget):
         layout.addWidget(widget_hint)
 
         layout = section('Звукові попередження', 1)
+        language_row = QHBoxLayout()
+        self.audio_language_group = QButtonGroup(self)
+        self.audio_language_group.setExclusive(True)
+        self.audio_language_buttons = {}
+        for label, language in [('Українська', 'ua'), ('English', 'en'), ('Deutsch', 'de')]:
+            button = QPushButton(label)
+            button.setCheckable(True)
+            button.setProperty('language', language)
+            button.setAccessibleName(f'Мова аудіо: {label}')
+            button.setStyleSheet(
+                'QPushButton { font-size: 12px; padding: 8px 4px; border: 1px solid #637a94; border-radius: 6px; }'
+                'QPushButton:checked { background: #245b52; color: #adffe8; border: 2px solid #72e0bd; font-weight: 600; }')
+            self.audio_language_group.addButton(button)
+            self.audio_language_buttons[language] = button
+            language_row.addWidget(button)
+        layout.addLayout(language_row)
         self.notify_10 = QCheckBox('За 10 хвилин')
         self.notify_5 = QCheckBox('За 5 хвилин')
+        self.audio_previews = {}
         for checkbox, minutes in ((self.notify_10, 10), (self.notify_5, 5)):
             sound_row = QHBoxLayout()
             sound_row.addWidget(checkbox, 1)
             preview = QPushButton('Прослухати')
             preview.setStyleSheet('font-size: 12px; padding: 7px;')
             preview.setFixedWidth(96)
-            preview.clicked.connect(lambda checked=False, value=minutes: play_warning(value))
+            preview.clicked.connect(lambda checked=False, value=minutes: play_warning(value, self.selected_audio_language()))
+            self.audio_previews[minutes] = preview
             sound_row.addWidget(preview)
             layout.addLayout(sound_row)
-        hint = QLabel('Сирена → голосове повідомлення. Оберіть один або обидва інтервали. Жодного — без звуку.')
+        hint = QLabel('«Увага!» → голосове повідомлення. Оберіть один або обидва інтервали. Жодного — без звуку.')
         hint.setWordWrap(True)
         hint.setStyleSheet('color: #c0ccdc; font-size: 12px;')
         layout.addWidget(hint)
+        examples_title = QLabel('Інші приклади · лише прослуховування')
+        examples_title.setStyleSheet('color: #c0ccdc; font-size: 12px;')
+        layout.addWidget(examples_title)
+        self.message_previews = {}
+        for label, message_id in [('Зміна графіка', 'power.schedule_changed'),
+                                  ('Повітряна тривога', 'alert.air_raid'),
+                                  ('Програму оновлено', 'app.updated')]:
+            example_row = QHBoxLayout()
+            example_row.addWidget(QLabel(label), 1)
+            preview = QPushButton('Прослухати')
+            preview.setStyleSheet('font-size: 12px; padding: 7px;')
+            preview.setFixedWidth(96)
+            preview.clicked.connect(lambda checked=False, ident=message_id: self.preview_message(ident))
+            self.message_previews[message_id] = preview
+            example_row.addWidget(preview)
+            layout.addLayout(example_row)
         layout = section('Запуск програми', 3)
         self.autostart = QCheckBox('Запускати разом із Windows')
         self.autostart.setToolTip('Після входу у Windows — одразу в трей. Після переміщення папки увімкніть опцію повторно. Якщо Windows вимкнула автозапуск, перевірте Диспетчер завдань.')
@@ -155,6 +204,41 @@ class SettingsPanel(QWidget):
         layout.addWidget(self.update_notes)
         self.update_button = QPushButton('Перевірити оновлення')
         layout.addWidget(self.update_button)
+        layout = section(f'BlackoutTracker · {VERSION}', 5)
+        about = QLabel(
+            '<p><b>Безкоштовний помічник для планування дня зі світлом.</b><br>'
+            'Portable-застосунок для Windows із відкритим кодом. Користування безкоштовне; '
+            'встановлювати Python чи інші компоненти не потрібно.</p>'
+            '<p><b>Проєкт та автор</b><br>'
+            'BlackoutTracker розвиває <a href="https://github.com/akoval29">akoval29</a>. '
+            'Код і нові версії доступні в '
+            '<a href="https://github.com/akoval29/BlackoutTracker">репозиторії на GitHub</a>. '
+            'Є ідея або знайшли помилку? '
+            '<a href="https://github.com/akoval29/BlackoutTracker/issues">Напишіть у розділі Issues</a>.</p>'
+            '<p><b>Як це працює</b><br>'
+            'Оберіть регіон і чергу: програма періодично перевіряє графік, показує відлік '
+            'до наступної події та зберігає зміни в журналі. Є віджет і звукові попередження. '
+            'Після закриття вікна програма продовжує працювати в треї. '
+            'Усі години — за Києвом; налаштування, кеш і журнал зберігаються локально.</p>'
+            '<p><b>Джерело даних і подяка</b><br>'
+            'Графіки надходять із відкритого проєкту '
+            '<a href="https://github.com/uapowerguardkit/outage-data-ua">outage-data-ua</a> '
+            '(раніше Baskerville42/outage-data-ua). Він збирає дані з публічних сторінок постачальників. '
+            'Дякуємо Alexander Tartmin, зазначеному в '
+            '<a href="https://github.com/uapowerguardkit/outage-data-ua/blob/main/LICENSE">ліцензії проєкту</a>, '
+            'та всім його учасникам за відкриті дані.</p>'
+            '<p><b>Що варто знати</b><br>'
+            'Графік — це план, а не вимірювання наявності електрики. Під час екстрених відключень '
+            'він може не діяти. Без інтернету показується збережений графік; застарілі дані позначаються. '
+            'Знак ∞ означає, що час наступної події невідомий, а не гарантію безперервного світла.</p>')
+        about.setWordWrap(True)
+        about.setTextFormat(Qt.TextFormat.RichText)
+        about.setTextInteractionFlags(Qt.TextInteractionFlag.TextBrowserInteraction)
+        about.setOpenExternalLinks(True)
+        about.setStyleSheet('font-size: 13px; color: #d5dfed;')
+        # Keep links readable on the dark panel without changing other labels.
+        about.setText(about.text().replace('<a href=', '<a style="color: #86e9cf;" href='))
+        layout.addWidget(about)
         layout = self.root_layout
         self.error = QLabel()
         self.error.setWordWrap(True)
@@ -162,27 +246,33 @@ class SettingsPanel(QWidget):
         self.error.hide()
         layout.addWidget(self.error)
         layout.addStretch()
+        self.tabs.currentChanged.connect(self.select_tab)
         self.load(preferences)
         self.region_selector.currentIndexChanged.connect(self.region_changed)
         for signal in (self.queue_selector.currentTextChanged, self.interval.valueChanged,
                        self.position.currentIndexChanged, self.topmost.toggled, self.notify_5.toggled, self.notify_10.toggled, self.auto_updates.toggled):
             signal.connect(self.changed)
+        self.audio_language_group.buttonToggled.connect(lambda _button, checked: self.changed() if checked else None)
 
-    def configure_columns(self, width):
-        wide = width >= 680
-        if wide == self.wide_columns:
-            return
-        self.wide_columns = wide
+    def selected_audio_language(self):
+        button = self.audio_language_group.checkedButton()
+        return button.property('language') if button else 'ua'
+
+    def preview_message(self, message_id):
+        try:
+            play_message(message_id, self.selected_audio_language())
+        except (OSError, ValueError, KeyError, RuntimeError):
+            self.error.setText('Не вдалося відтворити аудіо.')
+            self.error.show()
+
+
+    def select_tab(self, index):
+        # A popup from the previous page must not float over the new page.
+        for selector in self.findChildren(SideSelector):
+            selector.menu.dismiss(animated=False)
         for order, card in self.section_cards.items():
-            self.columns.removeWidget(card)
-            self.columns.addWidget(card, order // 2 if wide else order, order % 2 if wide else 0)
-        self.columns.setColumnStretch(0, 1)
-        self.columns.setColumnStretch(1, 1 if wide else 0)
+            card.setVisible(order == index)
         self.root_layout.invalidate()
-
-    def resizeEvent(self, event):
-        super().resizeEvent(event)
-        self.configure_columns(event.size().width())
 
     def set_refresh_status(self, status):
         text, color = {
@@ -252,6 +342,7 @@ class SettingsPanel(QWidget):
             self.interval.setValue(preferences['refresh_minutes'])
             self.notify_5.setChecked(preferences['notify_5_minutes'])
             self.notify_10.setChecked(preferences['notify_10_minutes'])
+            self.audio_language_buttons.get(preferences.get('audio_language'), self.audio_language_buttons['ua']).setChecked(True)
             self.auto_updates.setChecked(preferences.get('check_updates', True))
             self.error.clear()
             self.error.hide()
@@ -262,5 +353,5 @@ class SettingsPanel(QWidget):
         return {'region': self.region_selector.currentData(), 'group': self.queue_selector.currentText(), 'overlay_topmost': self.topmost.isChecked(),
                 'refresh_minutes': self.interval.value(), 'notify_5_minutes': self.notify_5.isChecked(),
                 'notify_10_minutes': self.notify_10.isChecked(), 'overlay_position': self.position.currentData(),
-                'check_updates': self.auto_updates.isChecked()}
+                'audio_language': self.selected_audio_language(), 'check_updates': self.auto_updates.isChecked()}
 

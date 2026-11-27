@@ -1,0 +1,44 @@
+{
+  "expected": 108,
+  "downloaded": 108,
+  "missing": [],
+  "unexpected": [],
+  "languages": {
+    "ua": {
+      "files": 36,
+      "seconds": 171.648
+    },
+    "en": {
+      "files": 36,
+      "seconds": 138.40799999999996
+    },
+    "de": {
+      "files": 36,
+      "seconds": 201.6
+    }
+  },
+  "separateIntros": [
+    {
+      "language": "ua",
+      "file": "assets\\audio\\voiceAction-v2\\integration_course-uk-UA\\lesson_99.99.99\\увага.aac",
+      "seconds": 1.872
+    },
+    {
+      "language": "en",
+      "file": "assets/audio/en/common_attention.mp3",
+      "seconds": 1.872
+    },
+    {
+      "language": "de",
+      "file": "assets/audio/de/common_attention.mp3",
+      "seconds": 1.872
+    }
+  ],
+  "errors": [],
+  "identicalFiles": [],
+  "oldBytes": 3678048,
+  "newBytes": 3069936,
+  "savedBytes": 608112,
+  "savedPercent": 16.53,
+  "spokenContentVerified": false
+}

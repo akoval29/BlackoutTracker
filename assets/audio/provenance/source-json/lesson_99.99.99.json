@@ -1,0 +1,239 @@
+[
+  {
+    "text": {
+      "ua": "Увага!",
+      "en": "Attention!",
+      "de": "Achtung!"
+    }
+  },
+  {
+    "text": {
+      "ua": "Планове відключення електрики через п'ять хвилин!",
+      "en": "A scheduled power outage will begin in five minutes!",
+      "de": "In fünf Minuten beginnt eine geplante Stromabschaltung!"
+    }
+  },
+  {
+    "text": {
+      "de": "In zehn Minuten beginnt eine geplante Stromabschaltung!"
+    }
+  },
+  {
+    "text": {
+      "ua": "За графіком планове відключення електрики починається зараз!",
+      "en": "The scheduled power outage is due to begin now!",
+      "de": "Laut Zeitplan beginnt die geplante Stromabschaltung jetzt!"
+    }
+  },
+  {
+    "text": {
+      "ua": "Графік відключень електрики змінився. Перевірте оновлений розклад у застосунку.",
+      "en": "The power outage schedule has changed. Check the updated schedule in the app.",
+      "de": "Der Zeitplan für Stromabschaltungen hat sich geändert. Prüfen Sie den aktualisierten Zeitplan in der App."
+    }
+  },
+  {
+    "text": {
+      "ua": "Графік відключень електрики тимчасово недоступний.",
+      "en": "The power outage schedule is temporarily unavailable."
+    }
+  },
+  {
+    "text": {
+      "ua": "За графіком електропостачання мають відновити через п'ять хвилин.",
+      "en": "According to the schedule, power should be restored in five minutes.",
+      "de": "Laut Zeitplan sollte die Stromversorgung in fünf Minuten wiederhergestellt werden."
+    }
+  },
+  {
+    "text": {
+      "ua": "За графіком період відключення електрики завершився.",
+      "en": "The scheduled power outage period has ended.",
+      "de": "Der geplante Zeitraum der Stromabschaltung ist beendet."
+    }
+  },
+  {
+    "text": {
+      "ua": "Повітряна тривога! Прямуйте в укриття!",
+      "en": "Air raid alert! Proceed to a shelter!",
+      "de": "Luftalarm! Begeben Sie sich in einen Schutzraum!"
+    }
+  },
+  {
+    "text": {
+      "ua": "Жовтий рівень загрози. Попередження про можливу повітряну небезпеку. Стежте за офіційними повідомленнями.",
+      "en": "Yellow threat level. A warning of a potential aerial threat is in effect. Follow official updates.",
+      "de": "Gelbe Warnstufe. Es besteht eine Vorwarnung vor einer möglichen Gefahr aus der Luft. Beachten Sie die offiziellen Meldungen."
+    }
+  },
+  {
+    "text": {
+      "ua": "Червоний рівень загрози. Повітряна тривога! Прямуйте в укриття!",
+      "en": "Red threat level. Air raid alert! Proceed to a shelter!",
+      "de": "Rote Warnstufe. Luftalarm! Begeben Sie sich in einen Schutzraum!"
+    }
+  },
+  {
+    "text": {
+      "ua": "Рівень загрози підвищено до червоного. Повітряна тривога! Прямуйте в укриття!",
+      "en": "The threat level has been raised to red. Air raid alert! Proceed to a shelter!",
+      "de": "Die Warnstufe wurde auf Rot erhöht. Luftalarm! Begeben Sie sich in einen Schutzraum!"
+    }
+  },
+  {
+    "text": {
+      "ua": "Рівень загрози змінено на жовтий. Попередження про небезпеку залишається чинним. Стежте за офіційними повідомленнями."
+    }
+  },
+  {
+    "text": {
+      "ua": "У частині вибраної області діє попередження про повітряну небезпеку. Перевірте статус свого району або громади.",
+      "en": "An aerial threat warning is in effect for part of your selected region. Check the status of your district or local community.",
+      "de": "Für einen Teil der ausgewählten Region besteht eine Warnung vor einer Gefahr aus der Luft. Prüfen Sie den Status Ihres Bezirks oder Ihrer Gemeinde."
+    }
+  },
+  {
+    "text": {
+      "ua": "У вибраному районі оголошено повітряну тривогу! Прямуйте в укриття!",
+      "en": "An air raid alert has been issued for your selected district! Proceed to a shelter!",
+      "de": "Im ausgewählten Bezirk wurde Luftalarm ausgelöst! Begeben Sie sich in einen Schutzraum!"
+    }
+  },
+  {
+    "text": {
+      "ua": "У вибраній громаді оголошено повітряну тривогу! Прямуйте в укриття!",
+      "de": "In der ausgewählten Gemeinde wurde Luftalarm ausgelöst! Begeben Sie sich in einen Schutzraum!"
+    }
+  },
+  {
+    "text": {
+      "ua": "Повідомлено про загрозу безпілотників.",
+      "en": "A drone threat has been reported.",
+      "de": "Es wurde eine Bedrohung durch Drohnen gemeldet."
+    }
+  },
+  {
+    "text": {
+      "en": "A ballistic missile threat has been reported."
+    }
+  },
+  {
+    "text": {
+      "en": "A cruise missile threat has been reported."
+    }
+  },
+  {
+    "text": {
+      "ua": "Повідомлено про ракетну загрозу.",
+      "en": "A missile threat has been reported.",
+      "de": "Es wurde eine Raketenbedrohung gemeldet."
+    }
+  },
+  {
+    "text": {
+      "en": "A threat from guided aerial bombs has been reported."
+    }
+  },
+  {
+    "text": {
+      "ua": "Повідомлено про активність тактичної авіації.",
+      "en": "Tactical aircraft activity has been reported.",
+      "de": "Es wurden Aktivitäten taktischer Militärflugzeuge gemeldet."
+    }
+  },
+  {
+    "text": {
+      "en": "Strategic aircraft activity has been reported.",
+      "de": "Es wurden Aktivitäten strategischer Militärflugzeuge gemeldet."
+    }
+  },
+  {
+    "text": {
+      "ua": "Повідомлено про зліт літака МіГ тридцять один ка.",
+      "en": "The takeoff of a MiG thirty-one K aircraft has been reported.",
+      "de": "Der Start eines Flugzeugs vom Typ MiG einunddreißig K wurde gemeldet."
+    }
+  },
+  {
+    "text": {
+      "ua": "Повідомлено про роботу протиповітряної оборони.",
+      "en": "Air defense activity has been reported.",
+      "de": "Es wurden Aktivitäten der Luftabwehr gemeldet."
+    }
+  },
+  {
+    "text": {
+      "ua": "Повітряна тривога триває. Залишайтеся в укритті.",
+      "en": "The air raid alert remains in effect. Stay in a shelter.",
+      "de": "Der Luftalarm besteht weiterhin. Bleiben Sie im Schutzraum."
+    }
+  },
+  {
+    "text": {
+      "ua": "Відбій повітряної тривоги для вибраної території.",
+      "en": "The air raid alert has ended for your selected area.",
+      "de": "Der Luftalarm für das ausgewählte Gebiet wurde aufgehoben."
+    }
+  },
+  {
+    "text": {
+      "ua": "Попередження про загрозу знято для вибраної території.",
+      "en": "The threat warning has been lifted for your selected area.",
+      "de": "Die Gefahrenwarnung für das ausgewählte Gebiet wurde aufgehoben."
+    }
+  },
+  {
+    "text": {
+      "ua": "Дані про тривоги тимчасово недоступні. Перевірте офіційні повідомлення.",
+      "en": "Alert information is temporarily unavailable. Check official updates.",
+      "de": "Die Warnmeldungen sind vorübergehend nicht verfügbar. Prüfen Sie die offiziellen Meldungen."
+    }
+  },
+  {
+    "text": {
+      "ua": "Дані про тривоги застаріли. Поточний статус не підтверджено. Перевірте офіційні повідомлення."
+    }
+  },
+  {
+    "text": {
+      "ua": "Отримання даних про тривоги відновлено.",
+      "en": "Alert information updates have resumed.",
+      "de": "Die Aktualisierung der Warnmeldungen wurde wieder aufgenommen."
+    }
+  },
+  {
+    "text": {
+      "ua": "Блекаут Трекер оновлено!",
+      "en": "Blackout Tracker has been updated!",
+      "de": "Blackout Tracker wurde aktualisiert!"
+    }
+  },
+  {
+    "text": {
+      "ua": "Доступне оновлення програми.",
+      "en": "An app update is available.",
+      "de": "Ein Update für die App ist verfügbar."
+    }
+  },
+  {
+    "text": {
+      "ua": "Перевірка звуку. Аудіосповіщення працюють.",
+      "en": "Sound check. Audio notifications are working.",
+      "de": "Soundtest. Die Audiobenachrichtigungen funktionieren."
+    }
+  },
+  {
+    "text": {
+      "ua": "Аудіосповіщення увімкнено.",
+      "en": "Audio notifications are enabled.",
+      "de": "Audiobenachrichtigungen sind aktiviert."
+    }
+  },
+  {
+    "text": {
+      "ua": "Аудіосповіщення вимкнено.",
+      "en": "Audio notifications are disabled.",
+      "de": "Audiobenachrichtigungen sind deaktiviert."
+    }
+  }
+]

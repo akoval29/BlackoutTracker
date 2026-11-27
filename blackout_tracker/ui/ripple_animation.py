@@ -15,6 +15,7 @@ class RippleAnimation(QWidget):
         self.setStyleSheet('background: transparent;')
         self.setFixedSize(320, 320)
         self.progress = 0.0
+        self.repeating = False
         self.color = QColor('#5ee0af')
         self.panel_animation = QVariantAnimation(self)
         self.panel_animation.setDuration(1100)
@@ -23,8 +24,10 @@ class RippleAnimation(QWidget):
         self.panel_animation.valueChanged.connect(self.advance)
         self.panel_animation.finished.connect(self.hide)
 
-    def start(self, center, color, topmost):
+    def start(self, center, color, topmost, repeat=False):
         self.panel_animation.stop()
+        self.repeating = repeat
+        self.panel_animation.setLoopCount(-1 if repeat else 1)
         self.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint, topmost)
         self.move(center.x() - 160, center.y() - 160)
         self.color = QColor(color)
@@ -45,7 +48,8 @@ class RippleAnimation(QWidget):
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         painter.setBrush(Qt.BrushStyle.NoBrush)
         for delay in (0.0, 0.16, 0.32):
-            phase = (self.progress - delay) / (1.0 - delay)
+            phase = ((self.progress - delay) % 1.0 if self.repeating
+                     else (self.progress - delay) / (1.0 - delay))
             if not 0 <= phase < 1:
                 continue
             radius = 7 + 148 * phase

@@ -14,6 +14,32 @@ class OverlayTests(unittest.TestCase):
         cls.app = QApplication.instance() or QApplication([])
         cls.app.setStyleSheet(APP_STYLESHEET)
 
+    def test_audio_rings_repeat_follow_widget_and_stop(self):
+        widget = CountdownWidget()
+        try:
+            widget.present('Таймер', '01:00:00', '#5ee0af', 'top')
+            widget.set_audio_active(True)
+            self.assertEqual(widget.ripple.panel_animation.loopCount(), -1)
+            widget.ripple.panel_animation.setCurrentTime(2500)
+            self.assertTrue(widget.ripple.isVisible())
+            with patch.object(widget.ripple, 'start', wraps=widget.ripple.start) as start:
+                widget.present('Таймер', '00:59:59', '#5ee0af', 'top')
+                self.assertEqual(start.call_count, 0)
+            widget.present('Таймер', '00:59:58', '#5ee0af', 'bottom')
+            widget.position_animation.setCurrentTime(250)
+            center = widget.geometry().center()
+            self.assertEqual(widget.ripple.x(), center.x() - 160)
+            self.assertEqual(widget.ripple.y(), center.y() - 160)
+            widget.set_audio_active(False)
+            self.assertFalse(widget.ripple.isVisible())
+            self.assertEqual(widget.ripple.panel_animation.state(), widget.ripple.panel_animation.State.Stopped)
+            widget.hide()
+            widget.present('Таймер', '00:59:57', '#5ee0af', 'bottom')
+            self.assertEqual(widget.ripple.panel_animation.loopCount(), 1)
+        finally:
+            widget.hide()
+            widget.deleteLater()
+
     def test_animation_only_on_appearance_or_selected_position_change(self):
         widget = CountdownWidget()
         try:
